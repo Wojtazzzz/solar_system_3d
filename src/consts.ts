@@ -1,1 +1,1 @@
-export const PLANET_SCALE = 20;
+export const PLANET_SCALE = 50;

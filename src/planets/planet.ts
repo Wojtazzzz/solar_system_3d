@@ -5,6 +5,7 @@ export class Planet
 {
     public mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
     public theta = 0;
+    public globalX = 0;
 
     public constructor(
         public readonly name: string,
@@ -16,8 +17,10 @@ export class Planet
     }
 
     updatePosition() {
+        this.globalX += 0.05;
         this.theta += this.orbitalSpeed;
-        this.mesh.position.x = this.orbitalRadius / 2 * Math.cos(this.theta);
-        this.mesh.position.z = this.orbitalRadius / 2 * Math.sin(this.theta);
+
+        this.mesh.position.x = this.globalX + this.orbitalRadius / 1.5 * Math.cos(this.theta);
+        this.mesh.position.z = this.orbitalRadius / 1.5 * Math.sin(this.theta);
     }
 }

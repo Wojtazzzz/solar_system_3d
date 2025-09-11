@@ -32,18 +32,26 @@ const saturn = new Planet('saturn', 0.167 * PLANET_SCALE / 4, 35, 0.003);
 const uranus = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002);
 const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015);
 
-camera.position.z = 5;
+camera.position.z = 3;
 camera.position.y = 30;
+camera.position.x = 16;
 camera.rotation.x = -1.4;
+camera.rotation.y = 0.6;
 
-mercury.mesh.position.x = 3;
-venus.mesh.position.x = 6;
-earth.mesh.position.x = 9;
-mars.mesh.position.x = 12;
-jupiter.mesh.position.x = 15;
-saturn.mesh.position.x = 18;
-uranus.mesh.position.x = 21;
-neptune.mesh.position.x = 24;
+function addStar() {
+    const geometry = new THREE.SphereGeometry(0.25, 12, 12);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const star = new THREE.Mesh(geometry, material);
+
+    const x = camera.position.x * 3;
+    const y = THREE.MathUtils.randFloatSpread(150);
+    const z = THREE.MathUtils.randFloatSpread(150);
+
+    star.position.set(x, y, z);
+    scene.add(star);
+}
+
+Array(200).fill().forEach(addStar);
 
 function animate() {
     requestAnimationFrame(animate);
@@ -54,6 +62,14 @@ function animate() {
 
         object.updatePosition();
     });
+
+    sun.mesh.position.x += 0.05;
+    sun.mesh.rotation.x -= 0.002;
+    sun.mesh.rotation.y -= 0.001;
+
+    camera.position.x += 0.05;
+
+    Array(50).fill().every(addStar);
 
     renderer.render(scene, camera);
 }
