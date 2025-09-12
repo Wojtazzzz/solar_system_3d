@@ -9,8 +9,6 @@ export const getScene = () => {
 }
 
 export const renderPlanet = (texture: string, width: number) => {
-    const scene = getScene();
-
     const planet = new THREE.Mesh(
         new THREE.SphereGeometry(width, 32, 32),
         new THREE.MeshStandardMaterial({
@@ -18,7 +16,7 @@ export const renderPlanet = (texture: string, width: number) => {
         })
     );
 
-    scene.add(planet);
+    getScene().add(planet);
 
     return planet;
 }

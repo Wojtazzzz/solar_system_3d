@@ -17,7 +17,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const pointLight = new THREE.AmbientLight(0xFFE8C5, 0.3);
+const pointLight = new THREE.PointLight(0xFFE8C5, 500, 5000);
 pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
 
@@ -42,7 +42,7 @@ Array.from({ length: 6000 }).forEach(() => {
 });
 
 let theta = 0;
-let radius = 42;
+let radius = 32;
 const baseCameraY = 20;
 const yFactor = baseCameraY / radius;
 
@@ -57,8 +57,7 @@ function animate() {
         object.updateTrail();
     });
 
-    sun.mesh.rotation.x -= 0.002;
-    sun.mesh.rotation.y -= 0.001;
+    sun.updateRotation();
 
     stars.forEach((star) => star.tryToExplode())
 
@@ -79,7 +78,7 @@ function onScroll(event: WheelEvent) {
     const scrollSpeed = 1;
     radius += event.deltaY * scrollSpeed * 0.01;
 
-    radius = Math.max(5, Math.min(50, radius));
+    radius = Math.max(5, Math.min(40, radius));
 }
 
 window.addEventListener('wheel', onScroll);

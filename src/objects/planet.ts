@@ -1,6 +1,9 @@
 import {getScene, renderPlanet} from "../utils.ts";
 import {
-    BufferGeometry, type BufferGeometryEventMap, Line, LineBasicMaterial,
+    BufferGeometry,
+    type BufferGeometryEventMap,
+    Line,
+    LineBasicMaterial,
     type Mesh,
     type MeshStandardMaterial,
     type NormalBufferAttributes, type Object3DEventMap,
@@ -30,8 +33,8 @@ export class Planet
     updatePosition() {
         this.theta += this.orbitalSpeed;
 
-        this.mesh.position.x = this.orbitalRadius / 1.5 * Math.cos(this.theta);
-        this.mesh.position.z = this.orbitalRadius / 1.5 * Math.sin(this.theta);
+        this.mesh.position.x = this.orbitalRadius / 1.2 * Math.cos(this.theta);
+        this.mesh.position.z = this.orbitalRadius / 1.2 * Math.sin(this.theta);
 
         if (USE_REAL_PLANET_INCLINATION) {
             this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
