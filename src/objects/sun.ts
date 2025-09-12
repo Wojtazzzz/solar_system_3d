@@ -1,38 +1,51 @@
+import {type Mesh, ShaderMaterial, type SphereGeometry} from "three";
+import * as THREE from "three";
+import {noise} from "./noise.ts";
 import {getScene} from "../utils.ts";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {Group} from "three";
 
 export class Sun
 {
-    public model: null|Group = null;
+    public model: null|Mesh<SphereGeometry, ShaderMaterial> = null;
+    public sunMaterial: ShaderMaterial;
 
     constructor() {
-        const loader = new GLTFLoader();
-
-        loader.load(
-            '/images/sun/scene.gltf',
-            (gltf) => {
-                this.model = gltf.scene;
-
-                this.model.scale.set(0.184, 0.184, 0.184);
-
-                getScene().add(this.model);
+        this.sunMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                emissiveIntensity: { value: 8 }
             },
-            (xhr) => {
-                console.log(`${(xhr.loaded / xhr.total) * 100}% załadowane`);
-            },
-            (error) => {
-                console.error('Błąd ładowania modelu:', error);
-            }
-        );
-    }
-
-    updateRotation() {
-        if (!this.model) {
-            return;
+            vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        void main() {
+            vUv = uv;
+            vPosition = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
+    `,
+            fragmentShader: `
+        uniform float time;
+        uniform float emissiveIntensity;
+        varying vec2 vUv;
+        varying vec3 vPosition;
 
-        this.model.rotation.x -= 0.005;
-        this.model.rotation.y -= 0.005;
+        ${noise}
+
+        void main() {
+            float scale = 5.0 / 0.7;
+            float noiseValue = noise(vPosition * scale + time);
+            vec3 color = mix(vec3(1.0, 0.1, 0.0), vec3(1.0, 0.2, 0.0), noiseValue);
+            float intensity = (noiseValue * 0.5 + 0.5) * emissiveIntensity;
+            gl_FragColor = vec4(color * intensity, 1.0);
+        }
+    `
+        });
+
+        this.model = new THREE.Mesh(
+            new THREE.SphereGeometry(2, 32, 32),
+            this.sunMaterial,
+        );
+
+        getScene().add(this.model);
     }
 }

@@ -17,11 +17,11 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const pointLight = new THREE.PointLight(0xFFE8C5, 500, 5000);
+const pointLight = new THREE.PointLight(0xffcf37, 500, 5000);
 pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
 
-const sun = new Sun();
+const sun     = new Sun();
 const mercury = new Planet('mercury', 0.007 * PLANET_SCALE, 5, 0.04, 7);
 const venus   = new Planet('venus', 0.0174 * PLANET_SCALE, 7, 0.015, 3);
 const earth   = new Planet('earth', 0.0183 * PLANET_SCALE, 10, 0.01, 0);
@@ -46,6 +46,8 @@ let radius = 32;
 const baseCameraY = 20;
 const yFactor = baseCameraY / radius;
 
+const clock = new THREE.Clock();
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -57,7 +59,7 @@ function animate() {
         object.updateTrail();
     });
 
-    sun.updateRotation();
+    sun.sunMaterial.uniforms.time.value = clock.getElapsedTime();
 
     stars.forEach((star) => star.tryToExplode())
 
@@ -76,6 +78,7 @@ animate();
 
 function onScroll(event: WheelEvent) {
     const scrollSpeed = 1;
+
     radius += event.deltaY * scrollSpeed * 0.01;
 
     radius = Math.max(5, Math.min(40, radius));
