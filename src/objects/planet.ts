@@ -49,7 +49,7 @@ export class Planet
             getScene().remove(this.trail);
         }
 
-        const trailMaterial = new THREE.LineBasicMaterial({ color: 0x696969 });
+        const trailMaterial = new THREE.LineBasicMaterial({ color: 0x4F4F4F });
         const trailGeometry = new THREE.BufferGeometry().setFromPoints(this.trailPoints);
         this.trail = new THREE.Line(trailGeometry, trailMaterial);
 

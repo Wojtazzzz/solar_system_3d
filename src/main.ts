@@ -32,13 +32,13 @@ const uranus  = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002, 0.8);
 const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015, 1.8);
 
 
-camera.position.z = 45;
-camera.position.y = 17;
+camera.position.z = 42;
+camera.position.y = 20;
 camera.lookAt(0, 0, 0);
 
 const stars: Star[] = [];
 
-Array.from({ length: 4000 }).forEach(() => {
+Array.from({ length: 6000 }).forEach(() => {
     stars.push(new Star());
 });
 

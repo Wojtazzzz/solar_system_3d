@@ -7,7 +7,7 @@ export class Star
 
     constructor() {
         this.mesh = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1, 32, 32),
+            new THREE.SphereGeometry(0.08, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xffffff }),
         );
 
@@ -20,20 +20,16 @@ export class Star
     }
 
     tryToExplode() {
-        if (Math.random() <= 0.987) {
+        if (Math.random() <= 0.998) {
             return;
         }
 
         const explosion = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1, 32, 32),
+            new THREE.SphereGeometry(0.2, 32, 32),
             new THREE.MeshStandardMaterial({ color: 0xffffff }),
         );
 
         explosion.position.set(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z);
-
-        const scale = 2.2 * Math.sin(Date.now() * 0.01);
-
-        explosion.scale.set(scale, scale, scale);
 
         getScene().add(explosion);
 
