@@ -17,7 +17,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const pointLight = new THREE.PointLight(0xFFBF4A, 200, 500);
+const pointLight = new THREE.PointLight(0xFFE8C5, 200, 500);
 pointLight.position.set(0, 20, 20);
 scene.add(pointLight);
 

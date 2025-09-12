@@ -31,7 +31,7 @@ export class Star
 
         explosion.position.set(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z);
 
-        const scale = 1 + 2 * Math.sin(Date.now() * 0.01);
+        const scale = 2.2 * Math.sin(Date.now() * 0.01);
 
         explosion.scale.set(scale, scale, scale);
 

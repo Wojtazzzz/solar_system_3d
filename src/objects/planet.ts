@@ -13,7 +13,6 @@ export class Planet
     public mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
     public theta = 0;
     public trailPoints: THREE.Vector3[] = [];
-    public trailGeometry: null|THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = null;
     public trail: null|Line<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, LineBasicMaterial, Object3DEventMap> = null
 
     public constructor(
