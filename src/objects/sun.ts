@@ -1,20 +1,19 @@
-import {type Mesh, ShaderMaterial, type SphereGeometry} from "three";
+import { type Mesh, ShaderMaterial, type SphereGeometry } from "three";
 import * as THREE from "three";
-import {noise} from "./noise.ts";
-import {getScene} from "../utils.ts";
+import { noise } from "./noise.ts";
+import { getScene } from "../utils.ts";
 
-export class Sun
-{
-    public model: null|Mesh<SphereGeometry, ShaderMaterial> = null;
-    public sunMaterial: ShaderMaterial;
+export class Sun {
+  public model: null | Mesh<SphereGeometry, ShaderMaterial> = null;
+  public sunMaterial: ShaderMaterial;
 
-    constructor() {
-        this.sunMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                time: { value: 0 },
-                emissiveIntensity: { value: 8 }
-            },
-            vertexShader: `
+  constructor() {
+    this.sunMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        emissiveIntensity: { value: 8 },
+      },
+      vertexShader: `
         varying vec2 vUv;
         varying vec3 vPosition;
         void main() {
@@ -23,7 +22,7 @@ export class Sun
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
     `,
-            fragmentShader: `
+      fragmentShader: `
         uniform float time;
         uniform float emissiveIntensity;
         varying vec2 vUv;
@@ -38,14 +37,14 @@ export class Sun
             float intensity = (noiseValue * 0.5 + 0.5) * emissiveIntensity;
             gl_FragColor = vec4(color * intensity, 1.0);
         }
-    `
-        });
+    `,
+    });
 
-        this.model = new THREE.Mesh(
-            new THREE.SphereGeometry(2, 32, 32),
-            this.sunMaterial,
-        );
+    this.model = new THREE.Mesh(
+      new THREE.SphereGeometry(2, 32, 32),
+      this.sunMaterial,
+    );
 
-        getScene().add(this.model);
-    }
+    getScene().add(this.model);
+  }
 }
