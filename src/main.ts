@@ -31,8 +31,8 @@ const uranus = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002);
 const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015);
 
 camera.position.z = 45;
-camera.position.y = 18;
-camera.rotation.x = -0.4;
+camera.position.y = 17;
+camera.lookAt(0, 0, 0);
 
 const explosions: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>[] = [];
 
@@ -60,15 +60,17 @@ function addStar() {
 }
 
 function starExplosion(explosion: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>) {
-    if (Math.random() > 0.999) {
-        const scale = 1 + 2 * Math.sin(Date.now() * 0.01);
-
-        explosion.scale.set(scale, scale, scale);
-
-        setTimeout(() => {
-            explosion.scale.set(1, 1, 1);
-        }, 16);
+    if (Math.random() <= 0.987) {
+        return;
     }
+
+    const scale = 1 + 2 * Math.sin(Date.now() * 0.01);
+
+    explosion.scale.set(scale, scale, scale);
+
+    setTimeout(() => {
+        explosion.scale.set(1, 1, 1);
+    }, 16 * 2);
 }
 
 Array.from({ length: 4000 }).forEach(addStar);
@@ -93,3 +95,24 @@ function animate() {
 }
 
 animate();
+
+function onScroll(event: WheelEvent) {
+    if (event.deltaY < 0 && camera.position.z >= 45) {
+        return;
+    }
+
+    if (event.deltaY > 0 && camera.position.z <= 10) {
+        return;
+    }
+
+    const scrollSpeed = 0.5;
+    const direction = new THREE.Vector3();
+
+    direction.subVectors(new THREE.Vector3(0, 0, 0), camera.position).normalize();
+
+    camera.position.addScaledVector(direction, event.deltaY * scrollSpeed * 0.01);
+
+    camera.lookAt(0, 0, 0);
+}
+
+window.addEventListener('wheel', onScroll);
