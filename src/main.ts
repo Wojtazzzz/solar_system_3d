@@ -17,8 +17,8 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const pointLight = new THREE.PointLight(0xFFE8C5, 200, 500);
-pointLight.position.set(0, 20, 20);
+const pointLight = new THREE.AmbientLight(0xFFE8C5, 0.3);
+pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
 
 const sun = new Sun();
@@ -31,7 +31,6 @@ const saturn  = new Planet('saturn', 0.167 * PLANET_SCALE / 4, 35, 0.003, 2.5);
 const uranus  = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002, 0.8);
 const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015, 1.8);
 
-
 camera.position.z = 42;
 camera.position.y = 20;
 camera.lookAt(0, 0, 0);
@@ -41,6 +40,11 @@ const stars: Star[] = [];
 Array.from({ length: 6000 }).forEach(() => {
     stars.push(new Star());
 });
+
+let theta = 0;
+let radius = 42;
+const baseCameraY = 20;
+const yFactor = baseCameraY / radius;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -58,28 +62,24 @@ function animate() {
 
     stars.forEach((star) => star.tryToExplode())
 
+    theta += 0.001;
+
+    camera.position.x = radius * Math.cos(theta);
+    camera.position.z = radius * Math.sin(theta);
+    camera.position.y = radius * yFactor;
+
+    camera.lookAt(0, 0, 0);
+
     renderer.render(scene, camera);
 }
 
 animate();
 
 function onScroll(event: WheelEvent) {
-    if (event.deltaY < 0 && camera.position.z >= 45) {
-        return;
-    }
+    const scrollSpeed = 1;
+    radius += event.deltaY * scrollSpeed * 0.01;
 
-    if (event.deltaY > 0 && camera.position.z <= 10) {
-        return;
-    }
-
-    const scrollSpeed = 0.5;
-    const direction = new THREE.Vector3();
-
-    direction.subVectors(new THREE.Vector3(0, 0, 0), camera.position).normalize();
-
-    camera.position.addScaledVector(direction, event.deltaY * scrollSpeed * 0.01);
-
-    camera.lookAt(0, 0, 0);
+    radius = Math.max(5, Math.min(50, radius));
 }
 
 window.addEventListener('wheel', onScroll);
