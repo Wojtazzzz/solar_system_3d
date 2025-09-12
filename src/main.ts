@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import {getScene} from "./utils.ts";
-import {Sun} from "./planets/sun.ts";
-import {Planet} from "./planets/planet.ts";
+import {Sun} from "./objects/sun.ts";
+import {Planet} from "./objects/planet.ts";
 import {PLANET_SCALE} from "./consts.ts";
+import {Star} from "./objects/star.ts";
 
 const scene = getScene();
 const camera = new THREE.PerspectiveCamera(
@@ -16,7 +17,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const pointLight = new THREE.PointLight(0xffcf37, 200);
+const pointLight = new THREE.PointLight(0xFFBF4A, 200, 500);
 pointLight.position.set(0, 20, 20);
 scene.add(pointLight);
 
@@ -34,46 +35,11 @@ camera.position.z = 45;
 camera.position.y = 17;
 camera.lookAt(0, 0, 0);
 
-const explosions: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>[] = [];
+const stars: Star[] = [];
 
-function addStar() {
-    const geometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const star = new THREE.Mesh(geometry, material);
-
-    const x = THREE.MathUtils.randFloatSpread(150);
-    const y = THREE.MathUtils.randFloatSpread(150);
-    const z = THREE.MathUtils.randFloatSpread(150);
-
-    star.position.set(x, y, z);
-    scene.add(star);
-
-    const explosion = new THREE.Mesh(
-        new THREE.SphereGeometry(0.1, 32, 32),
-        material,
-    );
-
-    explosion.position.set(x, y, z);
-    scene.add(explosion);
-
-    explosions.push(explosion);
-}
-
-function starExplosion(explosion: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap>) {
-    if (Math.random() <= 0.987) {
-        return;
-    }
-
-    const scale = 1 + 2 * Math.sin(Date.now() * 0.01);
-
-    explosion.scale.set(scale, scale, scale);
-
-    setTimeout(() => {
-        explosion.scale.set(1, 1, 1);
-    }, 16 * 2);
-}
-
-Array.from({ length: 4000 }).forEach(addStar);
+Array.from({ length: 4000 }).forEach(() => {
+    stars.push(new Star());
+});
 
 function animate() {
     requestAnimationFrame(animate);
@@ -89,7 +55,7 @@ function animate() {
     sun.mesh.rotation.x -= 0.002;
     sun.mesh.rotation.y -= 0.001;
 
-    explosions.forEach(starExplosion);
+    stars.forEach((star) => star.tryToExplode())
 
     renderer.render(scene, camera);
 }
