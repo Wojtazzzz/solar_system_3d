@@ -7,6 +7,7 @@ import {
     type SphereGeometry
 } from "three";
 import * as THREE from "three";
+import {USE_REAL_PLANET_INCLINATION} from "../consts.ts";
 
 export class Planet
 {
@@ -20,8 +21,10 @@ export class Planet
         public readonly radius: number,
         public readonly orbitalRadius: number,
         public readonly orbitalSpeed: number,
+        public readonly inclination: number,
     ) {
         this.mesh = renderPlanet(name, radius);
+        this.theta = Math.random() * 10 - 10;
     }
 
     updatePosition() {
@@ -29,6 +32,10 @@ export class Planet
 
         this.mesh.position.x = this.orbitalRadius / 1.5 * Math.cos(this.theta);
         this.mesh.position.z = this.orbitalRadius / 1.5 * Math.sin(this.theta);
+
+        if (USE_REAL_PLANET_INCLINATION) {
+            this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
+        }
     }
 
     updateTrail() {

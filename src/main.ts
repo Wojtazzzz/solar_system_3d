@@ -22,14 +22,15 @@ pointLight.position.set(0, 20, 20);
 scene.add(pointLight);
 
 const sun = new Sun();
-const mercury = new Planet('mercury', 0.007 * PLANET_SCALE, 5, 0.04);
-const venus = new Planet('venus', 0.0174 * PLANET_SCALE, 7, 0.015);
-const earth = new Planet('earth', 0.0183 * PLANET_SCALE, 10, 0.01);
-const mars = new Planet('mars', 0.0097 * PLANET_SCALE, 15, 0.008);
-const jupiter = new Planet('jupiter', 0.201 * PLANET_SCALE / 4, 25, 0.004);
-const saturn = new Planet('saturn', 0.167 * PLANET_SCALE / 4, 35, 0.003);
-const uranus = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002);
-const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015);
+const mercury = new Planet('mercury', 0.007 * PLANET_SCALE, 5, 0.04, 7);
+const venus   = new Planet('venus', 0.0174 * PLANET_SCALE, 7, 0.015, 3);
+const earth   = new Planet('earth', 0.0183 * PLANET_SCALE, 10, 0.01, 0);
+const mars    = new Planet('mars', 0.0097 * PLANET_SCALE, 15, 0.008, 1.85);
+const jupiter = new Planet('jupiter', 0.201 * PLANET_SCALE / 4, 25, 0.004, 1.3);
+const saturn  = new Planet('saturn', 0.167 * PLANET_SCALE / 4, 35, 0.003, 2.5);
+const uranus  = new Planet('uranus', 0.073 * PLANET_SCALE / 4, 45, 0.002, 0.8);
+const neptune = new Planet('neptune', 0.0708 * PLANET_SCALE / 4, 55, 0.0015, 1.8);
+
 
 camera.position.z = 45;
 camera.position.y = 17;
