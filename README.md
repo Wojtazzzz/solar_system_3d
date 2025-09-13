@@ -1,5 +1,4 @@
 <h2 align="center">Solar System 3D</h3>
-</div>
 
 ![app screenshot](./public/app_screenshot_1.png)
 
@@ -20,3 +19,5 @@ npm install && npm run dev
 Inspired by: https://threesolar.netlify.app/
 \
 Font: Orbitron
+\
+Planet textures: https://www.solarsystemscope.com/textures/
