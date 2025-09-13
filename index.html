@@ -8,27 +8,33 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div class="zoom-label">
-      <span class="scroll-text">Scroll to zoom</span>
-      <span class="slide-text">Slide to zoom</span>
-    </div>
+    <main id="app">
+      <h1 class="sr-only">Solar System 3D</h1>
 
-    <div class="github-label">
-      <a href="https://github.com/Wojtazzzz/solar_system_3d" class="label-text"
-        >Github</a
-      >
-    </div>
+      <div class="zoom-label">
+        <span class="scroll-text">Scroll to zoom</span>
+        <span class="slide-text">Slide to zoom</span>
+      </div>
 
-    <div class="slider-container">
-      <input
-        aria-label="Przybliż lub oddal się od słońca"
-        class="slider"
-        id="zoomSlider"
-        type="range"
-        step="0.01"
-        value="1"
-      />
-    </div>
+      <div class="github-label">
+        <a
+          href="https://github.com/Wojtazzzz/solar_system_3d"
+          class="label-text"
+          >Github</a
+        >
+      </div>
+
+      <div class="slider-container">
+        <input
+          aria-label="Przybliż lub oddal się od słońca"
+          class="slider"
+          id="zoomSlider"
+          type="range"
+          step="0.01"
+          value="1"
+        />
+      </div>
+    </main>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

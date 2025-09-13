@@ -15,7 +15,7 @@ import {
   PLANET_TRAIL_COLOR,
   PLANET_TRAIL_LENGTH,
   USE_REAL_PLANET_INCLINATION,
-} from "../consts.ts";
+} from "../consts";
 
 export class Planet {
   public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
@@ -42,7 +42,7 @@ export class Planet {
   }
 
   updatePosition() {
-    this.theta += (this.orbitalSpeed * 0.4);
+    this.theta += this.orbitalSpeed * 0.4;
 
     this.mesh.position.x =
       this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);

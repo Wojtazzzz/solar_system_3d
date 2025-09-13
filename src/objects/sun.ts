@@ -8,7 +8,7 @@ import {
   SUN_POSITION_Y,
   SUN_POSITION_Z,
   SUN_RADIUS,
-} from "../consts.ts";
+} from "../consts";
 
 export class Sun {
   public readonly model: Mesh<SphereGeometry, ShaderMaterial>;

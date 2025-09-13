@@ -4,9 +4,9 @@
 
 ### Built with
 
--   [TypeScript](https://www.typescriptlang.org/)
--   [Three.js](https://threejs.org/)
--   [Vite](https://vite.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Three.js](https://threejs.org/)
+- [Vite](https://vite.dev/)
 
 ## Local installation
 

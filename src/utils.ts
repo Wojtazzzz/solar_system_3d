@@ -1,5 +1,5 @@
-import { Camera } from "./objects/camera.ts";
-import { Planet } from "./objects/planet.ts";
+import { Camera } from "./objects/camera";
+import { Planet } from "./objects/planet";
 import {
   EARTH_INCLINATION,
   EARTH_NAME,
@@ -42,7 +42,7 @@ import {
   VENUS_ORBITAL_RADIUS,
   VENUS_ORBITAL_SPEED,
   VENUS_RADIUS,
-} from "./consts.ts";
+} from "./consts";
 import { Scene, WebGLRenderer } from "three";
 
 export const initScene = () => {
@@ -68,7 +68,7 @@ export const initRenderer = () => {
     window.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     window.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    document.body.appendChild(window.renderer.domElement);
+    document.getElementById('app')?.appendChild(window.renderer.domElement);
   }
 
   return window.renderer;

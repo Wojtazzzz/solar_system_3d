@@ -3,8 +3,8 @@ import {
   initRenderer,
   initCamera,
   createSolarSystemPlanets,
-} from "./utils.ts";
-import { Sun } from "./objects/sun.ts";
+} from "./utils";
+import { Sun } from "./objects/sun";
 import { Star } from "./objects/star";
 import {
   CAMERA_INITIAL_RADIUS,
@@ -12,7 +12,7 @@ import {
   CAMERA_MIN_RADIUS,
   STARS_COUNT,
   ZOOM_SPEED,
-} from "./consts.ts";
+} from "./consts";
 import { Clock } from "three";
 
 const renderer = initRenderer();

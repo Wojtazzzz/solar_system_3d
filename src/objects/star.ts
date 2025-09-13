@@ -17,7 +17,7 @@ import {
   SUN_POSITION_X,
   SUN_POSITION_Y,
   SUN_POSITION_Z,
-} from "../consts.ts";
+} from "../consts";
 
 export class Star {
   public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;

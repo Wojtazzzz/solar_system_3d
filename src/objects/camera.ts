@@ -7,7 +7,7 @@ import {
   CAMERA_MAX_RADIUS,
   CAMERA_MIN_RADIUS,
   CAMERA_ROTATION_SPEED,
-} from "../consts.ts";
+} from "../consts";
 
 export class Camera {
   public readonly object: PerspectiveCamera;
