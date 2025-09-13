@@ -1,8 +1,11 @@
 <h2 align="center">Solar System 3D</h3>
+<p align="center">
+  Preview: https://solarsystem.byst.re/
+</p>
 
 ![app screenshot](./public/app_screenshot_1.png)
 
-### Built with
+## Built with
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [Three.js](https://threejs.org/)
