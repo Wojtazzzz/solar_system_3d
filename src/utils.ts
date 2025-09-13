@@ -43,7 +43,7 @@ import {
   VENUS_ORBITAL_SPEED,
   VENUS_RADIUS,
 } from "./consts.ts";
-import {Scene, WebGLRenderer} from "three";
+import { Scene, WebGLRenderer } from "three";
 
 export const initScene = () => {
   if (!window.scene) {

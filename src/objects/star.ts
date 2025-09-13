@@ -2,7 +2,8 @@ import {
   Mesh,
   MeshStandardMaterial,
   SphereGeometry,
-  MathUtils, Vector3,
+  MathUtils,
+  Vector3,
 } from "three";
 import {
   STAR_CHANCE_TO_EXPLODE,
@@ -12,7 +13,10 @@ import {
   STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE,
   STAR_MAX_RENDER_DISTANCE_FROM_SUN,
   STAR_MIN_RENDER_DISTANCE_FROM_SUN,
-  STAR_RADIUS, SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z
+  STAR_RADIUS,
+  SUN_POSITION_X,
+  SUN_POSITION_Y,
+  SUN_POSITION_Z,
 } from "../consts.ts";
 
 export class Star {
@@ -39,23 +43,25 @@ export class Star {
           MathUtils.randFloatSpread(STAR_MAX_RENDER_DISTANCE_FROM_SUN * 2),
           MathUtils.randFloatSpread(STAR_MAX_RENDER_DISTANCE_FROM_SUN * 2),
         ];
-      } while (new Vector3(...coords).distanceTo({
-        x: SUN_POSITION_X,
-        y: SUN_POSITION_Y,
-        z: SUN_POSITION_Z
-      }) < STAR_MIN_RENDER_DISTANCE_FROM_SUN);
+      } while (
+        new Vector3(...coords).distanceTo({
+          x: SUN_POSITION_X,
+          y: SUN_POSITION_Y,
+          z: SUN_POSITION_Z,
+        }) < STAR_MIN_RENDER_DISTANCE_FROM_SUN
+      );
 
       return coords;
     };
 
-    const [x,y,z] = generateCoords();
+    const [x, y, z] = generateCoords();
 
     this.mesh.position.set(x, y, z);
     this.explosion.position.set(x, y, z);
   }
 
   tryToExplode(currentCameraPosition: Vector3) {
-    if (Math.random() <= (1 - STAR_CHANCE_TO_EXPLODE)) {
+    if (Math.random() <= 1 - STAR_CHANCE_TO_EXPLODE) {
       return;
     }
 
@@ -63,11 +69,17 @@ export class Star {
       this.mesh.position,
     );
 
-    if (starDistanceToCamera < STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE) {
+    if (
+      starDistanceToCamera < STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE
+    ) {
       return;
     }
 
-    this.explosion.scale.set(STAR_EXPLOSION_RADIUS_SCALE, STAR_EXPLOSION_RADIUS_SCALE, STAR_EXPLOSION_RADIUS_SCALE);
+    this.explosion.scale.set(
+      STAR_EXPLOSION_RADIUS_SCALE,
+      STAR_EXPLOSION_RADIUS_SCALE,
+      STAR_EXPLOSION_RADIUS_SCALE,
+    );
 
     setTimeout(() => {
       this.explosion.scale.set(1, 1, 1);

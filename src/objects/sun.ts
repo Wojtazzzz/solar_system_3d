@@ -1,11 +1,13 @@
-import {Mesh, PointLight, ShaderMaterial, SphereGeometry} from "three";
+import { Mesh, PointLight, ShaderMaterial, SphereGeometry } from "three";
 import {
   SUN_LIGHT_COLOR,
   SUN_LIGHT_DISTANCE,
-  SUN_LIGHT_INTENSITY, SUN_NOISE_INTENSITY,
+  SUN_LIGHT_INTENSITY,
+  SUN_NOISE_INTENSITY,
   SUN_POSITION_X,
   SUN_POSITION_Y,
-  SUN_POSITION_Z, SUN_RADIUS
+  SUN_POSITION_Z,
+  SUN_RADIUS,
 } from "../consts.ts";
 
 export class Sun {
@@ -20,9 +22,13 @@ export class Sun {
       new SphereGeometry(SUN_RADIUS, 32, 32),
       this.material,
     );
-    this.model.position.set(SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z)
+    this.model.position.set(SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z);
 
-    this.light = new PointLight(SUN_LIGHT_COLOR, SUN_LIGHT_INTENSITY, SUN_LIGHT_DISTANCE);
+    this.light = new PointLight(
+      SUN_LIGHT_COLOR,
+      SUN_LIGHT_INTENSITY,
+      SUN_LIGHT_DISTANCE,
+    );
     this.light.position.set(SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z);
   }
 

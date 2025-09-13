@@ -1,19 +1,21 @@
 import { PerspectiveCamera } from "three";
 import {
-  CAMERA_FAR, CAMERA_FOV,
+  CAMERA_FAR,
+  CAMERA_FOV,
   CAMERA_INITIAL_RADIUS,
   CAMERA_INITIAL_Y,
   CAMERA_MAX_RADIUS,
-  CAMERA_MIN_RADIUS, CAMERA_ROTATION_SPEED
+  CAMERA_MIN_RADIUS,
+  CAMERA_ROTATION_SPEED,
 } from "../consts.ts";
 
 export class Camera {
   public readonly object: PerspectiveCamera;
 
   public constructor(
-      private theta = 0,
-      private radius = CAMERA_INITIAL_RADIUS,
-      private yFactor = CAMERA_INITIAL_Y / CAMERA_INITIAL_RADIUS,
+    private theta = 0,
+    private radius = CAMERA_INITIAL_RADIUS,
+    private yFactor = CAMERA_INITIAL_Y / CAMERA_INITIAL_RADIUS,
   ) {
     this.object = new PerspectiveCamera(
       CAMERA_FOV,

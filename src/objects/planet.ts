@@ -4,13 +4,17 @@ import {
   LineBasicMaterial,
   Mesh,
   MeshStandardMaterial,
-  SphereGeometry, TextureLoader, type Vector3,
+  SphereGeometry,
+  TextureLoader,
+  type Vector3,
 } from "three";
 import {
   PLANET_ORBITAL_RADIUS_SCALE,
   PLANET_ROTATION_SPEED_X,
-  PLANET_ROTATION_SPEED_Y, PLANET_TRAIL_COLOR, PLANET_TRAIL_LENGTH,
-  USE_REAL_PLANET_INCLINATION
+  PLANET_ROTATION_SPEED_Y,
+  PLANET_TRAIL_COLOR,
+  PLANET_TRAIL_LENGTH,
+  USE_REAL_PLANET_INCLINATION,
 } from "../consts.ts";
 
 export class Planet {
@@ -40,8 +44,10 @@ export class Planet {
   updatePosition() {
     this.theta += this.orbitalSpeed;
 
-    this.mesh.position.x = this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);
-    this.mesh.position.z = this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.sin(this.theta);
+    this.mesh.position.x =
+      this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);
+    this.mesh.position.z =
+      this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.sin(this.theta);
 
     if (USE_REAL_PLANET_INCLINATION) {
       this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
@@ -65,9 +71,7 @@ export class Planet {
     const trailMaterial = new LineBasicMaterial({
       color: PLANET_TRAIL_COLOR,
     });
-    const trailGeometry = new BufferGeometry().setFromPoints(
-      this.trailPoints,
-    );
+    const trailGeometry = new BufferGeometry().setFromPoints(this.trailPoints);
     this.trail = new Line(trailGeometry, trailMaterial);
 
     return [oldTrail, this.trail];

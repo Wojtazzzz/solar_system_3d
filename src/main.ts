@@ -6,12 +6,23 @@ import {
 } from "./utils.ts";
 import { Sun } from "./objects/sun.ts";
 import { Star } from "./objects/star";
-import { STARS_COUNT, ZOOM_SPEED } from "./consts.ts";
-import {Clock} from "three";
+import {
+  CAMERA_INITIAL_RADIUS,
+  CAMERA_MAX_RADIUS,
+  CAMERA_MIN_RADIUS,
+  STARS_COUNT,
+  ZOOM_SPEED,
+} from "./consts.ts";
+import { Clock } from "three";
 
 const renderer = initRenderer();
 const scene = initScene();
 const camera = initCamera();
+
+const slider = document.getElementById("zoomSlider") as HTMLInputElement;
+slider.min = String(CAMERA_MIN_RADIUS);
+slider.max = String(CAMERA_MAX_RADIUS);
+slider.value = String(CAMERA_INITIAL_RADIUS);
 
 const sun = new Sun();
 const planets = createSolarSystemPlanets();
@@ -19,8 +30,8 @@ const stars: Star[] = [];
 
 Array.from({ length: STARS_COUNT }).forEach(() => stars.push(new Star()));
 
-stars.forEach(star => scene.add(star.mesh))
-stars.forEach(star => scene.add(star.explosion))
+stars.forEach((star) => scene.add(star.mesh));
+stars.forEach((star) => scene.add(star.explosion));
 
 scene.add(
   camera.object,
@@ -56,10 +67,16 @@ const animate = () => {
   stars.forEach((star) => star.tryToExplode(camera.object.position));
 
   renderer.render(scene, camera.object);
-}
+};
 
 animate();
 
 window.addEventListener("wheel", (event: WheelEvent) => {
   camera.setRadius(camera.getRadius() + event.deltaY * ZOOM_SPEED * 0.01);
+
+  slider.value = String(camera.getRadius());
+});
+
+slider.addEventListener("input", () => {
+  camera.setRadius(parseFloat(slider.value));
 });

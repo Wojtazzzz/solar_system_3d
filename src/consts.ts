@@ -7,7 +7,7 @@ export const CAMERA_INITIAL_Y = 20;
 export const CAMERA_INITIAL_RADIUS = 32;
 export const CAMERA_MAX_RADIUS = 40;
 export const CAMERA_MIN_RADIUS = 5;
-export const CAMERA_ROTATION_SPEED = 1
+export const CAMERA_ROTATION_SPEED = 1;
 
 export const SUN_RADIUS = 2;
 export const SUN_POSITION_X = 0;

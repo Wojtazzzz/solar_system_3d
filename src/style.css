@@ -1,42 +1,66 @@
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap");
 
+:root {
+  --main-text-color: #ffffff;
+}
+
 body {
   margin: 0;
   padding: 0;
   position: relative;
-
   font-family: "Orbitron", sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
+  letter-spacing: 2px;
+  color: var(--main-text-color);
 }
 
 canvas {
   position: fixed;
   top: 0;
   left: 0;
-  color: #4f4f4f;
   z-index: 1;
 }
 
-.scroll-label,
-.github-label {
+.zoom-label {
   position: fixed;
-  padding: 12px;
+  padding: 20px;
   z-index: 2;
-}
-
-.scroll-label {
   top: 0;
   left: 0;
+
+  .scroll-text,
+  .slide-text {
+    text-transform: uppercase;
+  }
+
+  .scroll-text {
+    display: none;
+
+    @media (min-width: 1024px) {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .slide-text {
+      display: none;
+    }
+  }
 }
 
 .github-label {
+  position: fixed;
+  padding: 20px;
+  z-index: 2;
   top: 0;
   right: 0;
 
   .label-text {
     text-decoration: none;
+    text-transform: uppercase;
+    color: var(--main-text-color);
   }
 
   .label-text:hover {
@@ -44,8 +68,26 @@ canvas {
   }
 }
 
-.label-text {
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+.slider-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .slider {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  @media (min-width: 1024px) {
+    .slider {
+      display: none;
+    }
+  }
 }
