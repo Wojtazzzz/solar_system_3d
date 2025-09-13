@@ -18,6 +18,6 @@ npm install && npm run dev
 
 Inspired by: https://threesolar.netlify.app/
 \
-Font: Orbitron
+Font: https://fonts.google.com/?query=orbitron
 \
 Planet textures: https://www.solarsystemscope.com/textures/
