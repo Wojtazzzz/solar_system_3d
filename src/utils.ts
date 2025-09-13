@@ -5,8 +5,21 @@ export const getScene = () => {
     window.scene = new THREE.Scene();
   }
 
-  return window.scene as THREE.Scene;
+  return window.scene;
 };
+
+export const getCamera = () => {
+  if (!window.camera) {
+    window.camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000,
+    );
+  }
+
+  return window.camera;
+}
 
 export const renderPlanet = (texture: string, width: number) => {
   const planet = new THREE.Mesh(

@@ -1,17 +1,12 @@
 import * as THREE from "three";
-import { getScene } from "./utils.ts";
+import { getScene, getCamera } from "./utils.ts";
 import { Sun } from "./objects/sun.ts";
 import { Planet } from "./objects/planet.ts";
 import { PLANET_SCALE } from "./consts.ts";
 import { Star } from "./objects/star.ts";
 
 const scene = getScene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000,
-);
+const camera = getCamera();
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));

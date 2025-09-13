@@ -11,7 +11,7 @@ export class Sun {
     this.sunMaterial = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        emissiveIntensity: { value: 8 },
+        emissiveIntensity: { value: 1 },
       },
       vertexShader: `
         varying vec2 vUv;

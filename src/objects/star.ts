@@ -1,48 +1,53 @@
-import { getScene } from "../utils.ts";
+import {getCamera, getScene} from "../utils.ts";
 import * as THREE from "three";
 
 export class Star {
   public mesh: THREE.Mesh<
     THREE.SphereGeometry,
-    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
     THREE.Object3DEventMap
   >;
 
+  public explosion: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
+
   constructor() {
-    this.mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.08, 32, 32),
-      new THREE.MeshStandardMaterial({ color: 0xffffff }),
-    );
+      this.mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff }),
+      );
+
+      this.explosion = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff }),
+      );
 
     const [x, y, z] = Array.from({ length: 3 }).map(() =>
       THREE.MathUtils.randFloatSpread(150),
     );
 
     this.mesh.position.set(x, y, z);
+    this.explosion.position.set(x, y, z);
 
-    getScene().add(this.mesh);
+    getScene().add(this.mesh, this.explosion);
   }
 
   tryToExplode() {
-    if (Math.random() <= 0.998) {
+    const CHANCE_TO_EXPLODE = 0.002;
+
+    if (Math.random() <= (1 - CHANCE_TO_EXPLODE)) {
       return;
     }
 
-    const explosion = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 32, 32),
-      new THREE.MeshStandardMaterial({ color: 0xffffff }),
-    );
+    const distanceToCamera = getCamera().position.distanceTo(this.mesh.position);
 
-    explosion.position.set(
-      this.mesh.position.x,
-      this.mesh.position.y,
-      this.mesh.position.z,
-    );
+    if (distanceToCamera < 20) {
+      return;
+    }
 
-    getScene().add(explosion);
+    this.explosion.scale.set(2.1, 2.1, 2.1);
 
     setTimeout(() => {
-      getScene().remove(explosion);
-    }, 16 * 2);
+      this.explosion.scale.set(1, 1, 1);
+    }, 16 * 4);
   }
 }
