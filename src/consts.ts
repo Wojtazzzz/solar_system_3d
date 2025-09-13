@@ -1,8 +1,12 @@
 export const USE_REAL_PLANET_INCLINATION = false;
 
-export const INITIAL_CAMERA_Y = 20;
-export const MAX_CAMERA_RADIUS = 40;
-export const MIN_CAMERA_RADIUS = 5;
+export const CAMERA_FOV = 75;
+export const CAMERA_FAR = 1000;
+export const CAMERA_INITIAL_Y = 20;
+export const CAMERA_INITIAL_RADIUS = 32;
+export const CAMERA_MAX_RADIUS = 40;
+export const CAMERA_MIN_RADIUS = 5;
+export const CAMERA_ROTATION_SPEED = 1
 
 export const ZOOM_SPEED = 1;
 

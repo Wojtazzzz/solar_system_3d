@@ -28,7 +28,7 @@ scene.add(
 
 const clock = new Clock();
 
-function animate() {
+const animate = () => {
   requestAnimationFrame(animate);
 
   camera.updatePosition();
