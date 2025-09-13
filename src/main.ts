@@ -1,97 +1,62 @@
-import * as THREE from "three";
-import { getScene, getCamera } from "./utils.ts";
+import {
+  initScene,
+  initRenderer,
+  initCamera,
+  createSolarSystemPlanets,
+} from "./utils.ts";
 import { Sun } from "./objects/sun.ts";
-import { Planet } from "./objects/planet.ts";
-import { PLANET_SCALE } from "./consts.ts";
-import { Star } from "./objects/star.ts";
+import { Star } from "./objects/star";
+import { STARS_COUNT, ZOOM_SPEED } from "./consts.ts";
+import {Clock} from "three";
 
-const scene = getScene();
-const camera = getCamera();
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const pointLight = new THREE.PointLight(0xffcf37, 500, 5000);
-pointLight.position.set(0, 0, 0);
-scene.add(pointLight);
+const renderer = initRenderer();
+const scene = initScene();
+const camera = initCamera();
 
 const sun = new Sun();
-const mercury = new Planet("mercury", 0.007 * PLANET_SCALE, 5, 0.04, 7);
-const venus = new Planet("venus", 0.0174 * PLANET_SCALE, 7, 0.015, 3);
-const earth = new Planet("earth", 0.0183 * PLANET_SCALE, 10, 0.01, 0);
-const mars = new Planet("mars", 0.0097 * PLANET_SCALE, 15, 0.008, 1.85);
-const jupiter = new Planet(
-  "jupiter",
-  (0.201 * PLANET_SCALE) / 4,
-  25,
-  0.004,
-  1.3,
-);
-const saturn = new Planet("saturn", (0.167 * PLANET_SCALE) / 4, 35, 0.003, 2.5);
-const uranus = new Planet("uranus", (0.073 * PLANET_SCALE) / 4, 45, 0.002, 0.8);
-const neptune = new Planet(
-  "neptune",
-  (0.0708 * PLANET_SCALE) / 4,
-  55,
-  0.0015,
-  1.8,
+const planets = createSolarSystemPlanets();
+const stars = Array.from({ length: STARS_COUNT }).map(() => new Star());
+
+scene.add(
+  camera.object,
+  sun.model,
+  sun.getLight(),
+  ...planets.map((planet) => planet.mesh),
+  ...stars.map((star) => star.mesh),
+  ...stars.map((star) => star.explosion),
 );
 
-camera.position.z = 42;
-camera.position.y = 20;
-camera.lookAt(0, 0, 0);
-
-const stars: Star[] = [];
-
-Array.from({ length: 6000 }).forEach(() => {
-  stars.push(new Star());
-});
-
-let theta = 0;
-let radius = 32;
-const baseCameraY = 20;
-const yFactor = baseCameraY / radius;
-
-const clock = new THREE.Clock();
+const clock = new Clock();
 
 function animate() {
   requestAnimationFrame(animate);
 
-  [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune].forEach(
-    (object) => {
-      object.mesh.rotation.x += 0.001;
-      object.mesh.rotation.y += 0.0005;
+  camera.updatePosition();
 
-      object.updatePosition();
-      object.updateTrail();
-    },
-  );
+  sun.updateNoiseAnimation(clock.getElapsedTime());
 
-  sun.sunMaterial.uniforms.time.value = clock.getElapsedTime();
+  planets.forEach((planet) => {
+    planet.updateRotation();
+    planet.updatePosition();
 
-  stars.forEach((star) => star.tryToExplode());
+    const [oldTrail, newTrail] = planet.updateTrail();
 
-  theta += 0.001;
+    if (oldTrail) {
+      scene.remove(oldTrail);
+    }
 
-  camera.position.x = radius * Math.cos(theta);
-  camera.position.z = radius * Math.sin(theta);
-  camera.position.y = radius * yFactor;
+    if (newTrail) {
+      scene.add(newTrail);
+    }
+  });
 
-  camera.lookAt(0, 0, 0);
+  stars.forEach((star) => star.tryToExplode(camera.object.position));
 
-  renderer.render(scene, camera);
+  renderer.render(scene, camera.object);
 }
 
 animate();
 
-function onScroll(event: WheelEvent) {
-  const scrollSpeed = 1;
-
-  radius += event.deltaY * scrollSpeed * 0.01;
-
-  radius = Math.max(5, Math.min(40, radius));
-}
-
-window.addEventListener("wheel", onScroll);
+window.addEventListener("wheel", (event: WheelEvent) => {
+  camera.setRadius(camera.getRadius() + event.deltaY * ZOOM_SPEED * 0.01);
+});

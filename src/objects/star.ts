@@ -1,44 +1,50 @@
-import {getCamera, getScene} from "../utils.ts";
-import * as THREE from "three";
+import {
+  Mesh,
+  MeshStandardMaterial,
+  SphereGeometry,
+  MathUtils, Vector3,
+} from "three";
 
 export class Star {
-  public mesh: THREE.Mesh<
-    THREE.SphereGeometry,
-    THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
-    THREE.Object3DEventMap
+  public mesh: Mesh<
+    SphereGeometry,
+    MeshStandardMaterial
   >;
 
-  public explosion: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial | THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
+  public explosion: Mesh<
+    SphereGeometry,
+    MeshStandardMaterial
+  >;
 
   constructor() {
-      this.mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(0.08, 32, 32),
-          new THREE.MeshStandardMaterial({ color: 0xffffff }),
-      );
+    this.mesh = new Mesh(
+      new SphereGeometry(0.08, 32, 32),
+      new MeshStandardMaterial({ color: 0xffffff }),
+    );
 
-      this.explosion = new THREE.Mesh(
-          new THREE.SphereGeometry(0.08, 32, 32),
-          new THREE.MeshStandardMaterial({ color: 0xffffff }),
-      );
+    this.explosion = new Mesh(
+      new SphereGeometry(0.08, 32, 32),
+      new MeshStandardMaterial({ color: 0xffffff }),
+    );
 
     const [x, y, z] = Array.from({ length: 3 }).map(() =>
-      THREE.MathUtils.randFloatSpread(150),
+      MathUtils.randFloatSpread(150),
     );
 
     this.mesh.position.set(x, y, z);
     this.explosion.position.set(x, y, z);
-
-    getScene().add(this.mesh, this.explosion);
   }
 
-  tryToExplode() {
+  tryToExplode(currentCameraPosition: Vector3) {
     const CHANCE_TO_EXPLODE = 0.002;
 
-    if (Math.random() <= (1 - CHANCE_TO_EXPLODE)) {
+    if (Math.random() <= 1 - CHANCE_TO_EXPLODE) {
       return;
     }
 
-    const distanceToCamera = getCamera().position.distanceTo(this.mesh.position);
+    const distanceToCamera = currentCameraPosition.distanceTo(
+      this.mesh.position,
+    );
 
     if (distanceToCamera < 20) {
       return;

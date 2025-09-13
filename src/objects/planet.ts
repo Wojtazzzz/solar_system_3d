@@ -1,27 +1,18 @@
-import { getScene, renderPlanet } from "../utils.ts";
 import {
   BufferGeometry,
-  type BufferGeometryEventMap,
   Line,
   LineBasicMaterial,
-  type Mesh,
-  type MeshStandardMaterial,
-  type NormalBufferAttributes,
-  type Object3DEventMap,
-  type SphereGeometry,
+  Mesh,
+  MeshStandardMaterial,
+  SphereGeometry, TextureLoader, type Vector3,
 } from "three";
-import * as THREE from "three";
 import { USE_REAL_PLANET_INCLINATION } from "../consts.ts";
 
 export class Planet {
   public mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
   public theta = 0;
-  public trailPoints: THREE.Vector3[] = [];
-  public trail: null | Line<
-    BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>,
-    LineBasicMaterial,
-    Object3DEventMap
-  > = null;
+  public trailPoints: Vector3[] = [];
+  public trail: null | Line<BufferGeometry, LineBasicMaterial> = null;
 
   public constructor(
     public readonly name: string,
@@ -30,7 +21,13 @@ export class Planet {
     public readonly orbitalSpeed: number,
     public readonly inclination: number,
   ) {
-    this.mesh = renderPlanet(name, radius);
+    this.mesh = new Mesh(
+      new SphereGeometry(radius, 32, 32),
+      new MeshStandardMaterial({
+        map: new TextureLoader().load(`/images/${name}.jpg`),
+      }),
+    );
+
     this.theta = Math.random() * 10 - 10;
   }
 
@@ -45,6 +42,11 @@ export class Planet {
     }
   }
 
+  updateRotation() {
+    this.mesh.rotation.x += 0.001;
+    this.mesh.rotation.y += 0.0005;
+  }
+
   updateTrail() {
     this.trailPoints.push(this.mesh.position.clone());
 
@@ -52,16 +54,14 @@ export class Planet {
       this.trailPoints.shift();
     }
 
-    if (this.trail) {
-      getScene().remove(this.trail);
-    }
+    const oldTrail = this.trail;
 
-    const trailMaterial = new THREE.LineBasicMaterial({ color: 0x4f4f4f });
-    const trailGeometry = new THREE.BufferGeometry().setFromPoints(
+    const trailMaterial = new LineBasicMaterial({ color: 0x4f4f4f });
+    const trailGeometry = new BufferGeometry().setFromPoints(
       this.trailPoints,
     );
-    this.trail = new THREE.Line(trailGeometry, trailMaterial);
+    this.trail = new Line(trailGeometry, trailMaterial);
 
-    getScene().add(this.trail);
+    return [oldTrail, this.trail];
   }
 }
