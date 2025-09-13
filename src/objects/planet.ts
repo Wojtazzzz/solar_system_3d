@@ -6,13 +6,18 @@ import {
   MeshStandardMaterial,
   SphereGeometry, TextureLoader, type Vector3,
 } from "three";
-import { USE_REAL_PLANET_INCLINATION } from "../consts.ts";
+import {
+  PLANET_ORBITAL_RADIUS_SCALE,
+  PLANET_ROTATION_SPEED_X,
+  PLANET_ROTATION_SPEED_Y, PLANET_TRAIL_COLOR, PLANET_TRAIL_LENGTH,
+  USE_REAL_PLANET_INCLINATION
+} from "../consts.ts";
 
 export class Planet {
-  public mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
-  public theta = 0;
-  public trailPoints: Vector3[] = [];
-  public trail: null | Line<BufferGeometry, LineBasicMaterial> = null;
+  public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
+  private theta = 0;
+  private trailPoints: Vector3[] = [];
+  private trail: null | Line<BufferGeometry, LineBasicMaterial> = null;
 
   public constructor(
     public readonly name: string,
@@ -28,14 +33,15 @@ export class Planet {
       }),
     );
 
+    // random start position
     this.theta = Math.random() * 10 - 10;
   }
 
   updatePosition() {
     this.theta += this.orbitalSpeed;
 
-    this.mesh.position.x = (this.orbitalRadius / 1.2) * Math.cos(this.theta);
-    this.mesh.position.z = (this.orbitalRadius / 1.2) * Math.sin(this.theta);
+    this.mesh.position.x = this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);
+    this.mesh.position.z = this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.sin(this.theta);
 
     if (USE_REAL_PLANET_INCLINATION) {
       this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
@@ -43,20 +49,22 @@ export class Planet {
   }
 
   updateRotation() {
-    this.mesh.rotation.x += 0.001;
-    this.mesh.rotation.y += 0.0005;
+    this.mesh.rotation.x += PLANET_ROTATION_SPEED_X / 1000;
+    this.mesh.rotation.y += PLANET_ROTATION_SPEED_Y / 1000;
   }
 
   updateTrail() {
     this.trailPoints.push(this.mesh.position.clone());
 
-    if (this.trailPoints.length > this.orbitalRadius * 27) {
+    if (this.trailPoints.length > this.orbitalRadius * PLANET_TRAIL_LENGTH) {
       this.trailPoints.shift();
     }
 
     const oldTrail = this.trail;
 
-    const trailMaterial = new LineBasicMaterial({ color: 0x4f4f4f });
+    const trailMaterial = new LineBasicMaterial({
+      color: PLANET_TRAIL_COLOR,
+    });
     const trailGeometry = new BufferGeometry().setFromPoints(
       this.trailPoints,
     );

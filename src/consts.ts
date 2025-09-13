@@ -1,4 +1,5 @@
 export const USE_REAL_PLANET_INCLINATION = false;
+export const ZOOM_SPEED = 1;
 
 export const CAMERA_FOV = 75;
 export const CAMERA_FAR = 1000;
@@ -8,11 +9,31 @@ export const CAMERA_MAX_RADIUS = 40;
 export const CAMERA_MIN_RADIUS = 5;
 export const CAMERA_ROTATION_SPEED = 1
 
-export const ZOOM_SPEED = 1;
+export const SUN_RADIUS = 2;
+export const SUN_POSITION_X = 0;
+export const SUN_POSITION_Y = 0;
+export const SUN_POSITION_Z = 0;
+export const SUN_NOISE_INTENSITY = 8;
+export const SUN_LIGHT_COLOR = 0xffcf37;
+export const SUN_LIGHT_INTENSITY = 500;
+export const SUN_LIGHT_DISTANCE = 5000;
 
-export const STARS_COUNT = 6000;
+export const STARS_COUNT = 3000;
+export const STAR_RADIUS = 0.06;
+export const STAR_COLOR = 0xffffff;
+export const STAR_MIN_RENDER_DISTANCE_FROM_SUN = 15;
+export const STAR_MAX_RENDER_DISTANCE_FROM_SUN = 60;
+export const STAR_CHANCE_TO_EXPLODE = 0.02;
+export const STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE = 20;
+export const STAR_EXPLOSION_RADIUS_SCALE = 2.1;
+export const STAR_EXPLOSION_LENGTH_IN_FRAMES = 3;
 
-export const PLANET_SCALE = 20;
+export const PLANET_RADIUS_SCALE = 20;
+export const PLANET_ORBITAL_RADIUS_SCALE = 1.2;
+export const PLANET_ROTATION_SPEED_X = 1;
+export const PLANET_ROTATION_SPEED_Y = 0.5;
+export const PLANET_TRAIL_LENGTH = 27;
+export const PLANET_TRAIL_COLOR = 0x4f4f4f;
 
 export const MERCURY_NAME = "mercury";
 export const MERCURY_RADIUS = 0.007;

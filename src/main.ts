@@ -15,15 +15,18 @@ const camera = initCamera();
 
 const sun = new Sun();
 const planets = createSolarSystemPlanets();
-const stars = Array.from({ length: STARS_COUNT }).map(() => new Star());
+const stars: Star[] = [];
+
+Array.from({ length: STARS_COUNT }).forEach(() => stars.push(new Star()));
+
+stars.forEach(star => scene.add(star.mesh))
+stars.forEach(star => scene.add(star.explosion))
 
 scene.add(
   camera.object,
   sun.model,
   sun.getLight(),
   ...planets.map((planet) => planet.mesh),
-  ...stars.map((star) => star.mesh),
-  ...stars.map((star) => star.explosion),
 );
 
 const clock = new Clock();
