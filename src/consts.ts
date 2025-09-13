@@ -1,6 +1,6 @@
 export const USE_REAL_PLANET_INCLINATION = false;
 
-export const INITIAL_CAMERA_Y = 30;
+export const INITIAL_CAMERA_Y = 20;
 export const MAX_CAMERA_RADIUS = 40;
 export const MIN_CAMERA_RADIUS = 5;
 
