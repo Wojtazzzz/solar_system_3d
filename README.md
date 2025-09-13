@@ -18,4 +18,5 @@ npm install && npm run dev
 ## Credits
 
 Inspired by: https://threesolar.netlify.app/
+\
 Font: Orbitron
