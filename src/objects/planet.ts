@@ -42,7 +42,7 @@ export class Planet {
   }
 
   updatePosition() {
-    this.theta += this.orbitalSpeed;
+    this.theta += (this.orbitalSpeed * 0.4);
 
     this.mesh.position.x =
       this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);
