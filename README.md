@@ -3,12 +3,6 @@
 
 ![app screenshot](./public/app_screenshot_1.png)
 
-## Features
-
--   Posts system
--   Friendships
--   Real-time chat
-
 ### Built with
 
 -   [TypeScript](https://www.typescriptlang.org/)
@@ -24,4 +18,5 @@ npm install && npm run dev
 ## Credits
 
 Inspired by: https://threesolar.netlify.app/
+\
 Font: Orbitron
