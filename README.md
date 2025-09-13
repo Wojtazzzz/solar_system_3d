@@ -3,12 +3,6 @@
 
 ![app screenshot](./public/app_screenshot_1.png)
 
-## Features
-
--   Posts system
--   Friendships
--   Real-time chat
-
 ### Built with
 
 -   [TypeScript](https://www.typescriptlang.org/)
