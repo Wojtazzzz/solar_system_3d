@@ -3,7 +3,7 @@ import {
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshStandardMaterial,
+  MeshBasicMaterial,
   SphereGeometry,
   TextureLoader,
   type Vector3,
@@ -14,7 +14,7 @@ import {
 } from "../consts";
 
 export class Planet {
-  public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
+  public readonly mesh: Mesh<SphereGeometry, MeshBasicMaterial>;
   private theta = 0;
   private trailPoints: Vector3[] = [];
   private trail: null | Line<BufferGeometry, LineBasicMaterial> = null;
@@ -28,7 +28,7 @@ export class Planet {
   ) {
     this.mesh = new Mesh(
       new SphereGeometry(radius, 32, 32),
-      new MeshStandardMaterial({
+      new MeshBasicMaterial({
         map: new TextureLoader().load(`/images/${name}.jpg`),
       }),
     );
