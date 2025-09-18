@@ -1,12 +1,6 @@
 import { PerspectiveCamera } from "three";
 import {
-  CAMERA_FAR,
-  CAMERA_FOV,
-  CAMERA_INITIAL_RADIUS,
-  CAMERA_INITIAL_Y,
-  CAMERA_MAX_RADIUS,
-  CAMERA_MIN_RADIUS,
-  CAMERA_ROTATION_SPEED,
+  camera,
 } from "../consts";
 
 export class Camera {
@@ -14,14 +8,14 @@ export class Camera {
 
   public constructor(
     private theta = 0,
-    private radius = CAMERA_INITIAL_RADIUS,
-    private yFactor = CAMERA_INITIAL_Y / CAMERA_INITIAL_RADIUS,
+    private radius = camera.initialRadius,
+    private yFactor = camera.initialY / camera.initialRadius,
   ) {
     this.object = new PerspectiveCamera(
-      CAMERA_FOV,
+      camera.fov,
       window.innerWidth / window.innerHeight,
       0.1,
-      CAMERA_FAR,
+      camera.far,
     );
   }
 
@@ -31,13 +25,13 @@ export class Camera {
 
   setRadius(radius: number) {
     this.radius = Math.max(
-      CAMERA_MIN_RADIUS,
-      Math.min(CAMERA_MAX_RADIUS, radius),
+      camera.minRadius,
+      Math.min(camera.maxRadius, radius),
     );
   }
 
   updatePosition() {
-    this.theta += CAMERA_ROTATION_SPEED / 1000;
+    this.theta += camera.rotationSpeed / 1000;
 
     this.object.position.x = this.radius * Math.cos(this.theta);
     this.object.position.z = this.radius * Math.sin(this.theta);

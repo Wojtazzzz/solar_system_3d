@@ -1,14 +1,5 @@
 import { Mesh, PointLight, ShaderMaterial, SphereGeometry } from "three";
-import {
-  SUN_LIGHT_COLOR,
-  SUN_LIGHT_DISTANCE,
-  SUN_LIGHT_INTENSITY,
-  SUN_NOISE_INTENSITY,
-  SUN_POSITION_X,
-  SUN_POSITION_Y,
-  SUN_POSITION_Z,
-  SUN_RADIUS,
-} from "../consts";
+import { sun } from "../consts";
 
 export class Sun {
   public readonly model: Mesh<SphereGeometry, ShaderMaterial>;
@@ -19,17 +10,17 @@ export class Sun {
     this.material = this.createSunMaterial();
 
     this.model = new Mesh(
-      new SphereGeometry(SUN_RADIUS, 32, 32),
+      new SphereGeometry(sun.radius, 32, 32),
       this.material,
     );
-    this.model.position.set(SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z);
+    this.model.position.set(sun.positionX, sun.positionY, sun.positionZ);
 
     this.light = new PointLight(
-      SUN_LIGHT_COLOR,
-      SUN_LIGHT_INTENSITY,
-      SUN_LIGHT_DISTANCE,
+      sun.lightColor,
+      sun.lightIntensity,
+      sun.lightDistance,
     );
-    this.light.position.set(SUN_POSITION_X, SUN_POSITION_Y, SUN_POSITION_Z);
+    this.light.position.set(sun.positionX, sun.positionY, sun.positionZ);
   }
 
   updateNoiseAnimation(time: number) {
@@ -44,7 +35,7 @@ export class Sun {
     return new ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        emissiveIntensity: { value: SUN_NOISE_INTENSITY },
+        emissiveIntensity: { value: sun.noiseIntensity },
       },
       vertexShader: `
         varying vec2 vUv;

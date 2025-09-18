@@ -5,19 +5,7 @@ import {
   MathUtils,
   Vector3,
 } from "three";
-import {
-  STAR_CHANCE_TO_EXPLODE,
-  STAR_COLOR,
-  STAR_EXPLOSION_LENGTH_IN_FRAMES,
-  STAR_EXPLOSION_RADIUS_SCALE,
-  STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE,
-  STAR_MAX_RENDER_DISTANCE_FROM_SUN,
-  STAR_MIN_RENDER_DISTANCE_FROM_SUN,
-  STAR_RADIUS,
-  SUN_POSITION_X,
-  SUN_POSITION_Y,
-  SUN_POSITION_Z,
-} from "../consts";
+import {stars, sun} from "../consts";
 
 export class Star {
   public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
@@ -25,13 +13,13 @@ export class Star {
 
   constructor() {
     this.mesh = new Mesh(
-      new SphereGeometry(STAR_RADIUS, 32, 32),
-      new MeshStandardMaterial({ color: STAR_COLOR }),
+      new SphereGeometry(stars.radius, 32, 32),
+      new MeshStandardMaterial({ color: stars.color }),
     );
 
     this.explosion = new Mesh(
-      new SphereGeometry(STAR_RADIUS, 32, 32),
-      new MeshStandardMaterial({ color: STAR_COLOR }),
+      new SphereGeometry(stars.radius, 32, 32),
+      new MeshStandardMaterial({ color: stars.color }),
     );
 
     const generateCoords = () => {
@@ -39,16 +27,16 @@ export class Star {
 
       do {
         coords = [
-          MathUtils.randFloatSpread(STAR_MAX_RENDER_DISTANCE_FROM_SUN * 2),
-          MathUtils.randFloatSpread(STAR_MAX_RENDER_DISTANCE_FROM_SUN * 2),
-          MathUtils.randFloatSpread(STAR_MAX_RENDER_DISTANCE_FROM_SUN * 2),
+          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
+          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
+          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
         ];
       } while (
         new Vector3(...coords).distanceTo({
-          x: SUN_POSITION_X,
-          y: SUN_POSITION_Y,
-          z: SUN_POSITION_Z,
-        }) < STAR_MIN_RENDER_DISTANCE_FROM_SUN
+          x: sun.positionX,
+          y: sun.positionY,
+          z: sun.positionZ,
+        }) < stars.minRenderDistanceFromSun
       );
 
       return coords;
@@ -61,7 +49,7 @@ export class Star {
   }
 
   tryToExplode(currentCameraPosition: Vector3) {
-    if (Math.random() <= 1 - STAR_CHANCE_TO_EXPLODE) {
+    if (Math.random() <= 1 - stars.chanceToExplode) {
       return;
     }
 
@@ -70,19 +58,19 @@ export class Star {
     );
 
     if (
-      starDistanceToCamera < STAR_MAX_DISTANCE_FROM_CAMERA_TO_PREVENT_EXPLODE
+      starDistanceToCamera < stars.maxDistanceFromCameraToPreventExplode
     ) {
       return;
     }
 
     this.explosion.scale.set(
-      STAR_EXPLOSION_RADIUS_SCALE,
-      STAR_EXPLOSION_RADIUS_SCALE,
-      STAR_EXPLOSION_RADIUS_SCALE,
+        stars.explosionRadiusScale,
+        stars.explosionRadiusScale,
+        stars.explosionRadiusScale,
     );
 
     setTimeout(() => {
       this.explosion.scale.set(1, 1, 1);
-    }, 16 * STAR_EXPLOSION_LENGTH_IN_FRAMES);
+    }, 16 * stars.explosionLengthInFrames);
   }
 }

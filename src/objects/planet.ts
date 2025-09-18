@@ -9,11 +9,7 @@ import {
   type Vector3,
 } from "three";
 import {
-  PLANET_ORBITAL_RADIUS_SCALE,
-  PLANET_ROTATION_SPEED_X,
-  PLANET_ROTATION_SPEED_Y,
-  PLANET_TRAIL_COLOR,
-  PLANET_TRAIL_LENGTH,
+  planet,
   USE_REAL_PLANET_INCLINATION,
 } from "../consts";
 
@@ -45,9 +41,9 @@ export class Planet {
     this.theta += this.orbitalSpeed * 0.4;
 
     this.mesh.position.x =
-      this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.cos(this.theta);
+      this.orbitalRadius * planet.orbitalRadiusScale * Math.cos(this.theta);
     this.mesh.position.z =
-      this.orbitalRadius * PLANET_ORBITAL_RADIUS_SCALE * Math.sin(this.theta);
+      this.orbitalRadius * planet.orbitalRadiusScale * Math.sin(this.theta);
 
     if (USE_REAL_PLANET_INCLINATION) {
       this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
@@ -55,21 +51,21 @@ export class Planet {
   }
 
   updateRotation() {
-    this.mesh.rotation.x += PLANET_ROTATION_SPEED_X / 1000;
-    this.mesh.rotation.y += PLANET_ROTATION_SPEED_Y / 1000;
+    this.mesh.rotation.x += planet.rotationSpeedX / 1000;
+    this.mesh.rotation.y += planet.rotationSpeedY / 1000;
   }
 
   updateTrail() {
     this.trailPoints.push(this.mesh.position.clone());
 
-    if (this.trailPoints.length > this.orbitalRadius * PLANET_TRAIL_LENGTH) {
+    if (this.trailPoints.length > this.orbitalRadius * planet.trailLength) {
       this.trailPoints.shift();
     }
 
     const oldTrail = this.trail;
 
     const trailMaterial = new LineBasicMaterial({
-      color: PLANET_TRAIL_COLOR,
+      color: planet.trailColor,
     });
     const trailGeometry = new BufferGeometry().setFromPoints(this.trailPoints);
     this.trail = new Line(trailGeometry, trailMaterial);

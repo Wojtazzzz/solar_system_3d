@@ -7,10 +7,8 @@ import {
 import { Sun } from "./objects/sun";
 import { Star } from "./objects/star";
 import {
-  CAMERA_INITIAL_RADIUS,
-  CAMERA_MAX_RADIUS,
-  CAMERA_MIN_RADIUS,
-  STARS_COUNT,
+  stars as starsOptions,
+  camera as cameraOptions,
   ZOOM_SPEED,
 } from "./consts";
 import { Clock } from "three";
@@ -20,15 +18,15 @@ const scene = initScene();
 const camera = initCamera();
 
 const slider = document.getElementById("zoomSlider") as HTMLInputElement;
-slider.min = String(CAMERA_MIN_RADIUS);
-slider.max = String(CAMERA_MAX_RADIUS);
-slider.value = String(CAMERA_INITIAL_RADIUS);
+slider.min = String(cameraOptions.minRadius);
+slider.max = String(cameraOptions.maxRadius);
+slider.value = String(cameraOptions.initialRadius);
 
 const sun = new Sun();
 const planets = createSolarSystemPlanets();
 const stars: Star[] = [];
 
-Array.from({ length: STARS_COUNT }).forEach(() => stars.push(new Star()));
+Array.from({ length: starsOptions.count }).forEach(() => stars.push(new Star()));
 
 stars.forEach((star) => scene.add(star.mesh));
 stars.forEach((star) => scene.add(star.explosion));
