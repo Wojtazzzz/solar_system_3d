@@ -17,9 +17,9 @@ export const sun = {
     positionY: 0,
     positionZ: 0,
     noiseIntensity: 8,
-    lightColor: 0xffcf37,
-    lightIntensity: 500,
-    lightDistance: 5000,
+    lightColor: 0xffffff,
+    lightIntensity: 100,
+    lightDistance: 500,
 };
 
 export const stars = {
