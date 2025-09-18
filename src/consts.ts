@@ -29,7 +29,7 @@ export const stars = {
     minRenderDistanceFromSun: 15,
     maxRenderDistanceFromSun: 60,
     chanceToExplode: 0.02,
-    maxDistanceFromCameraToPreventExplode: 50,
+    maxDistanceFromCameraToPreventExplode: 60,
     explosionRadiusScale: 2.1,
     explosionLengthInFrames: 3,
 };
