@@ -78,3 +78,27 @@ window.addEventListener("wheel", (event: WheelEvent) => {
 slider.addEventListener("input", () => {
   camera.setRadius(parseFloat(slider.value));
 });
+
+const configPanel = document.querySelector<HTMLDetailsElement>('.config-panel');
+
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+
+configPanel?.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  offsetX = e.clientX - configPanel?.offsetLeft;
+  offsetY = e.clientY - configPanel?.offsetTop;
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  if (!configPanel) return;
+
+  configPanel.style.left = (e.clientX - offsetX) + 'px';
+  configPanel.style.top = (e.clientY - offsetY) + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+});

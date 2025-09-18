@@ -2,7 +2,7 @@
 
 :root {
   --main-text-color: #ffffff;
-  --main-text-colors: #ffe5a6;
+  --padding: 20px;
 }
 
 body {
@@ -38,7 +38,7 @@ canvas {
 
 .zoom-label {
   position: fixed;
-  padding: 20px;
+  padding: var(--padding);;
   z-index: 2;
   top: 0;
   left: 0;
@@ -65,7 +65,7 @@ canvas {
 
 .github-label {
   position: fixed;
-  padding: 20px;
+  padding: var(--padding);;
   z-index: 2;
   top: 0;
   right: 0;
@@ -86,7 +86,7 @@ canvas {
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 20px;
+  padding: var(--padding);;
   box-sizing: border-box;
   z-index: 2;
   display: flex;
@@ -102,5 +102,35 @@ canvas {
     .slider {
       display: none;
     }
+  }
+}
+
+details.config-panel {
+  width: 320px;
+  background-color: #010101;
+  padding: var(--padding);
+  position: absolute;
+  top: 340px;
+  left: 20px;
+  z-index: 2;
+  opacity: 0.9;
+  border-radius: 8px;
+  text-transform: uppercase;
+  border: 1px solid var(--main-text-color);
+  user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  summary::marker {
+    padding-right: 12px;
+  }
+
+  .config-controls {
+    padding-top: var(--padding);
+    font-size: 12px;
+    overflow: hidden;
   }
 }
