@@ -6,7 +6,7 @@ export const camera = {
     far: 1000,
     initialY: 12,
     initialRadius: 32,
-    maxRadius: 40,
+    maxRadius: 60,
     minRadius: 5,
     rotationSpeed: 1,
 };
