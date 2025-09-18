@@ -3,23 +3,23 @@ import {
   MeshStandardMaterial,
   SphereGeometry,
   MathUtils,
-  Vector3,
+  Vector3, MeshBasicMaterial,
 } from "three";
 import {stars, sun} from "../consts";
 
 export class Star {
-  public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial>;
-  public readonly explosion: Mesh<SphereGeometry, MeshStandardMaterial>;
+  public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial | MeshBasicMaterial>;
+  public readonly explosion: Mesh<SphereGeometry, MeshStandardMaterial | MeshBasicMaterial>;
 
   constructor() {
     this.mesh = new Mesh(
       new SphereGeometry(stars.radius, 32, 32),
-      new MeshStandardMaterial({ color: stars.color }),
+      new MeshBasicMaterial({ color: stars.color }),
     );
 
     this.explosion = new Mesh(
       new SphereGeometry(stars.radius, 32, 32),
-      new MeshStandardMaterial({ color: stars.color }),
+      new MeshBasicMaterial({ color: stars.color }),
     );
 
     const generateCoords = () => {

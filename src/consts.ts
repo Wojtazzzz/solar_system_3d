@@ -16,18 +16,18 @@ export const sun = {
     positionX: 0,
     positionY: 0,
     positionZ: 0,
-    noiseIntensity: 8,
+    noiseIntensity: 9,
     lightColor: 0xffffff,
     lightIntensity: 100,
     lightDistance: 500,
 };
 
 export const stars = {
-    count: 3000,
-    radius: 0.06,
+    count: 2000,
+    radius: 0.04,
     color: 0xffffff,
     minRenderDistanceFromSun: 15,
-    maxRenderDistanceFromSun: 60,
+    maxRenderDistanceFromSun: 100,
     chanceToExplode: 0.02,
     maxDistanceFromCameraToPreventExplode: 60,
     explosionRadiusScale: 2.1,
