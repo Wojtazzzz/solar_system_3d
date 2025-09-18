@@ -22,7 +22,7 @@ jobs:
         run: |
           ssh -p ${{ secrets.SERVER_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}     << 'EOF'
             cd /var/www/solar_system_3d || exit
-            git pull origin master
+            git pull origin master --rebase --autostash
             npm install
             npm run build
           EOF
