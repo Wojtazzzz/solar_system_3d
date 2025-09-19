@@ -11,7 +11,9 @@ import {
   camera as cameraOptions,
   ZOOM_SPEED,
 } from "./consts";
-import { Clock } from "three";
+import {Clock} from "three";
+
+localStorage.setItem('isPlanetsShadow', '');
 
 const renderer = initRenderer();
 const scene = initScene();
@@ -35,8 +37,9 @@ scene.add(
   camera.object,
   sun.model,
   sun.getLight(),
-  ...planets.map((planet) => planet.mesh),
 );
+
+planets.forEach((planet) => scene.add(planet.mesh));
 
 const clock = new Clock();
 
@@ -102,3 +105,12 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   isDragging = false;
 });
+
+document.querySelector('#togglePlanetsShadowCheckbox')
+    ?.addEventListener('change', (e) => {
+      localStorage.setItem('isPlanetsShadow', (e.target as HTMLInputElement).checked ? '1' : '');
+
+      planets.forEach((planet) => {
+        planet.setIsShadow(Boolean(localStorage.getItem('isPlanetsShadow')));
+      });
+    });

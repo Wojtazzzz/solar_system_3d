@@ -3,7 +3,7 @@ import {
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshBasicMaterial,
+  MeshBasicMaterial, MeshStandardMaterial,
   SphereGeometry,
   TextureLoader,
   type Vector3,
@@ -14,7 +14,7 @@ import {
 } from "../consts";
 
 export class Planet {
-  public readonly mesh: Mesh<SphereGeometry, MeshBasicMaterial>;
+  public mesh: Mesh<SphereGeometry, MeshBasicMaterial | MeshStandardMaterial>;
   private theta = 0;
   private trailPoints: Vector3[] = [];
   private trail: null | Line<BufferGeometry, LineBasicMaterial> = null;
@@ -53,6 +53,20 @@ export class Planet {
   updateRotation() {
     this.mesh.rotation.x += planet.rotationSpeedX / 1000;
     this.mesh.rotation.y += planet.rotationSpeedY / 1000;
+  }
+
+  setIsShadow(isShadow: boolean) {
+    if (isShadow && !(this.mesh.material instanceof MeshStandardMaterial)) {
+      this.mesh.material.dispose();
+      this.mesh.material = new MeshStandardMaterial({
+        map: new TextureLoader().load(`/images/${this.name}.jpg`),
+      });
+    } else if (!isShadow && !(this.mesh.material instanceof MeshBasicMaterial)) {
+      this.mesh.material.dispose();
+      this.mesh.material = new MeshBasicMaterial({
+        map: new TextureLoader().load(`/images/${this.name}.jpg`),
+      });
+    }
   }
 
   updateTrail() {
