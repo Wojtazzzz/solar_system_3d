@@ -250,6 +250,7 @@ canvas {
 }
 
 details.config-panel {
+  box-sizing: border-box;
   width: 320px;
   max-width: calc(100vw - 40px);
   background-color: #010101;
@@ -274,10 +275,11 @@ details.config-panel {
   .config-controls {
     padding-top: var(--padding);
     font-size: 12px;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
   }
 
   .config-row {

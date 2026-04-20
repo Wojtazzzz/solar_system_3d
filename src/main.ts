@@ -8,7 +8,16 @@ import {
 import { Sun } from "./objects/sun";
 import { Star, createStarsInstancedMesh } from "./objects/star";
 import { Planet } from "./objects/planet";
+import { createSaturnRings } from "./objects/saturnRings";
 import { settings } from "./settings";
+import {
+  readBool,
+  readEnum,
+  readNumber,
+  writeBool,
+  writeEnum,
+  writeNumber,
+} from "./urlState";
 import {
   stars as starsOptions,
   camera as cameraOptions,
@@ -76,6 +85,10 @@ const start = async () => {
     scene.add(planet.orbitLine);
   });
 
+  const saturn = planets.find((p) => p.name === "saturn") ?? null;
+  const saturnRings = saturn ? createSaturnRings(saturn.radius) : null;
+  if (saturnRings) scene.add(saturnRings);
+
   const { updateLabels } = createPlanetLabels(planets);
 
   const rebuildStars = (count: number): void => {
@@ -117,6 +130,10 @@ const start = async () => {
       planet.updatePosition(dt);
       planet.updateTrail();
     });
+
+    if (saturn && saturnRings) {
+      saturnRings.position.copy(saturn.mesh.position);
+    }
 
     stars.forEach((star) => star.tryToExplode(camera.object.position));
 
@@ -178,84 +195,141 @@ const createPlanetLabels = (planets: Planet[]) => {
   return { updateLabels };
 };
 
+const bindCheckbox = (
+  id: string,
+  key: string,
+  defaultValue: boolean,
+  apply: (value: boolean) => void,
+): void => {
+  const el = document.querySelector<HTMLInputElement>(`#${id}`);
+  if (!el) return;
+  const initial = readBool(key, defaultValue);
+  el.checked = initial;
+  apply(initial);
+  el.addEventListener("change", () => {
+    apply(el.checked);
+    writeBool(key, el.checked, defaultValue);
+  });
+};
+
+const bindRange = (
+  id: string,
+  outputId: string | null,
+  key: string,
+  defaultValue: number,
+  formatOutput: ((value: number) => string) | null,
+  applyLive: ((value: number) => void) | null,
+  applyCommit?: (value: number) => void,
+): void => {
+  const el = document.querySelector<HTMLInputElement>(`#${id}`);
+  if (!el) return;
+  const output = outputId
+    ? document.querySelector<HTMLOutputElement>(`#${outputId}`)
+    : null;
+  const min = parseFloat(el.min);
+  const max = parseFloat(el.max);
+  const raw = readNumber(key, defaultValue);
+  const initial = Math.max(min, Math.min(max, raw));
+  el.value = String(initial);
+  if (output) {
+    output.textContent = formatOutput ? formatOutput(initial) : String(initial);
+  }
+  applyLive?.(initial);
+  if (applyCommit && initial !== defaultValue) applyCommit(initial);
+
+  el.addEventListener("input", () => {
+    const v = parseFloat(el.value);
+    if (output) {
+      output.textContent = formatOutput ? formatOutput(v) : el.value;
+    }
+    applyLive?.(v);
+  });
+  el.addEventListener("change", () => {
+    const v = parseFloat(el.value);
+    applyCommit?.(v);
+    writeNumber(key, v, defaultValue);
+  });
+};
+
+const bindSelect = <T extends string>(
+  id: string,
+  key: string,
+  allowed: readonly T[],
+  defaultValue: T,
+  apply: (value: T) => void,
+): void => {
+  const el = document.querySelector<HTMLSelectElement>(`#${id}`);
+  if (!el) return;
+  const initial = readEnum(key, allowed, defaultValue);
+  el.value = initial;
+  apply(initial);
+  el.addEventListener("change", () => {
+    const v = el.value as T;
+    apply(v);
+    writeEnum(key, v, defaultValue);
+  });
+};
+
 const initSettingsPanel = (
   planets: Planet[],
   rebuildStars: (count: number) => void,
 ): void => {
-  document
-    .querySelector("#togglePlanetsShadowCheckbox")
-    ?.addEventListener("change", (e) => {
-      const isShadow = (e.target as HTMLInputElement).checked;
-      localStorage.setItem("isPlanetsShadow", isShadow ? "1" : "");
-      planets.forEach((planet) => planet.setIsShadow(isShadow));
-    });
-
-  document
-    .querySelector("#toggleOrbitsCheckbox")
-    ?.addEventListener("change", (e) => {
-      const show = (e.target as HTMLInputElement).checked;
-      planets.forEach((planet) => (planet.orbitLine.visible = show));
-    });
-
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
-  document
-    .querySelector("#toggleLabelsCheckbox")
-    ?.addEventListener("change", (e) => {
-      const show = (e.target as HTMLInputElement).checked;
-      labelsContainer?.classList.toggle("planet-labels--visible", show);
-    });
 
-  document
-    .querySelector("#toggleTrailsCheckbox")
-    ?.addEventListener("change", (e) => {
-      const show = (e.target as HTMLInputElement).checked;
-      planets.forEach((planet) => (planet.trail.visible = show));
-    });
-
-  document
-    .querySelector("#toggleInclinationsCheckbox")
-    ?.addEventListener("change", (e) => {
-      settings.realInclinations = (e.target as HTMLInputElement).checked;
-      planets.forEach((planet) => planet.resetTrail());
-    });
-
-  const timeSpeedSlider = document.querySelector<HTMLInputElement>(
-    "#timeSpeedSlider",
-  );
-  const timeSpeedOutput = document.querySelector<HTMLOutputElement>(
-    "#timeSpeedOutput",
-  );
-  timeSpeedSlider?.addEventListener("input", () => {
-    const value = parseFloat(timeSpeedSlider.value);
-    settings.timeSpeed = value;
-    if (timeSpeedOutput) {
-      timeSpeedOutput.textContent = `${value.toFixed(1)}x`;
-    }
+  bindCheckbox("togglePlanetsShadowCheckbox", "sh", false, (v) => {
+    localStorage.setItem("isPlanetsShadow", v ? "1" : "");
+    planets.forEach((planet) => planet.setIsShadow(v));
   });
 
-  const starsCountSlider = document.querySelector<HTMLInputElement>(
-    "#starsCountSlider",
-  );
-  const starsCountOutput = document.querySelector<HTMLOutputElement>(
-    "#starsCountOutput",
-  );
-  starsCountSlider?.addEventListener("input", () => {
-    if (starsCountOutput) {
-      starsCountOutput.textContent = starsCountSlider.value;
-    }
-  });
-  starsCountSlider?.addEventListener("change", () => {
-    rebuildStars(parseInt(starsCountSlider.value, 10));
+  bindCheckbox("toggleOrbitsCheckbox", "or", true, (v) => {
+    planets.forEach((planet) => (planet.orbitLine.visible = v));
   });
 
-  const qualitySelect = document.querySelector<HTMLSelectElement>(
-    "#qualitySelect",
-  );
-  qualitySelect?.addEventListener("change", () => {
-    const preset = QUALITY_PRESETS[qualitySelect.value as Quality];
-    renderer.setPixelRatio(preset.pixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+  bindCheckbox("toggleLabelsCheckbox", "la", true, (v) => {
+    labelsContainer?.classList.toggle("planet-labels--visible", v);
   });
+
+  bindCheckbox("toggleTrailsCheckbox", "tr", true, (v) => {
+    planets.forEach((planet) => (planet.trail.visible = v));
+  });
+
+  bindCheckbox("toggleInclinationsCheckbox", "inc", false, (v) => {
+    settings.realInclinations = v;
+    planets.forEach((planet) => planet.resetTrail());
+  });
+
+  bindRange(
+    "timeSpeedSlider",
+    "timeSpeedOutput",
+    "t",
+    1,
+    (v) => `${v.toFixed(1)}x`,
+    (v) => {
+      settings.timeSpeed = v;
+    },
+  );
+
+  bindRange(
+    "starsCountSlider",
+    "starsCountOutput",
+    "s",
+    starsOptions.count,
+    null,
+    null,
+    (v) => rebuildStars(Math.round(v)),
+  );
+
+  bindSelect<Quality>(
+    "qualitySelect",
+    "q",
+    ["low", "medium", "high"],
+    "medium",
+    (q) => {
+      const preset = QUALITY_PRESETS[q];
+      renderer.setPixelRatio(preset.pixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    },
+  );
 };
 
 const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
