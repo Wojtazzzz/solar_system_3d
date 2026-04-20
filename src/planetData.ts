@@ -1,0 +1,187 @@
+export type BodyFact = {
+  id: string;
+  displayName: string;
+  type: "star" | "planet";
+  diameter: string;
+  mass: string;
+  orbitalPeriod: string;
+  dayLength: string;
+  moons: string;
+  temperature: string;
+  distanceFromSun: string;
+  funFact: string;
+};
+
+export const bodyFacts: Record<string, BodyFact> = {
+  sun: {
+    id: "sun",
+    displayName: "Sun",
+    type: "star",
+    diameter: "1,392,700 km",
+    mass: "1.989 × 10³⁰ kg",
+    orbitalPeriod: "—",
+    dayLength: "~25 days (equator)",
+    moons: "—",
+    temperature: "~5,500 °C (surface)",
+    distanceFromSun: "—",
+    funFact:
+      "Contains 99.86% of the Solar System's mass. Every second it converts 600 million tons of hydrogen into helium.",
+  },
+  mercury: {
+    id: "mercury",
+    displayName: "Mercury",
+    type: "planet",
+    diameter: "4,879 km",
+    mass: "3.3 × 10²³ kg",
+    orbitalPeriod: "88 days",
+    dayLength: "58.6 days",
+    moons: "0",
+    temperature: "-173 °C to 427 °C",
+    distanceFromSun: "57.9 million km",
+    funFact:
+      "A day on Mercury is longer than its year. It also has the greatest temperature swings in the Solar System.",
+  },
+  venus: {
+    id: "venus",
+    displayName: "Venus",
+    type: "planet",
+    diameter: "12,104 km",
+    mass: "4.87 × 10²⁴ kg",
+    orbitalPeriod: "225 days",
+    dayLength: "243 days",
+    moons: "0",
+    temperature: "~465 °C",
+    distanceFromSun: "108.2 million km",
+    funFact:
+      "The hottest planet in the Solar System — even though it isn't the closest to the Sun. It also rotates in the opposite direction to most planets.",
+  },
+  earth: {
+    id: "earth",
+    displayName: "Earth",
+    type: "planet",
+    diameter: "12,742 km",
+    mass: "5.97 × 10²⁴ kg",
+    orbitalPeriod: "365.25 days",
+    dayLength: "24 hours",
+    moons: "1",
+    temperature: "-88 °C to 58 °C",
+    distanceFromSun: "149.6 million km",
+    funFact:
+      "The only known planet with life. Water covers 71% of the surface, and the inner core is roughly as hot as the Sun's surface.",
+  },
+  mars: {
+    id: "mars",
+    displayName: "Mars",
+    type: "planet",
+    diameter: "6,779 km",
+    mass: "6.42 × 10²³ kg",
+    orbitalPeriod: "687 days",
+    dayLength: "24.6 hours",
+    moons: "2",
+    temperature: "-143 °C to 35 °C",
+    distanceFromSun: "227.9 million km",
+    funFact:
+      "Home to Olympus Mons — the tallest volcano in the Solar System, nearly 3× the height of Mount Everest.",
+  },
+  jupiter: {
+    id: "jupiter",
+    displayName: "Jupiter",
+    type: "planet",
+    diameter: "139,820 km",
+    mass: "1.9 × 10²⁷ kg",
+    orbitalPeriod: "11.86 years",
+    dayLength: "9.93 hours",
+    moons: "95",
+    temperature: "~-145 °C",
+    distanceFromSun: "778.5 million km",
+    funFact:
+      "The largest planet — all the others combined would fit inside it. The Great Red Spot is a storm that has raged for at least 350 years.",
+  },
+  saturn: {
+    id: "saturn",
+    displayName: "Saturn",
+    type: "planet",
+    diameter: "116,460 km",
+    mass: "5.68 × 10²⁶ kg",
+    orbitalPeriod: "29.46 years",
+    dayLength: "10.7 hours",
+    moons: "146",
+    temperature: "~-178 °C",
+    distanceFromSun: "1.43 billion km",
+    funFact:
+      "Its density is so low it would float on water (given an ocean big enough). The rings are mostly ice and dust.",
+  },
+  uranus: {
+    id: "uranus",
+    displayName: "Uranus",
+    type: "planet",
+    diameter: "50,724 km",
+    mass: "8.68 × 10²⁵ kg",
+    orbitalPeriod: "84 years",
+    dayLength: "17.2 hours",
+    moons: "27",
+    temperature: "~-224 °C",
+    distanceFromSun: "2.87 billion km",
+    funFact:
+      "Rotates 'on its side' — its rotation axis is almost parallel to its orbital plane. Each pole has 42 years of day followed by 42 years of night.",
+  },
+  neptune: {
+    id: "neptune",
+    displayName: "Neptune",
+    type: "planet",
+    diameter: "49,244 km",
+    mass: "1.02 × 10²⁶ kg",
+    orbitalPeriod: "164.8 years",
+    dayLength: "16.1 hours",
+    moons: "14",
+    temperature: "~-214 °C",
+    distanceFromSun: "4.5 billion km",
+    funFact:
+      "Winds reach 2,100 km/h — the fastest in the Solar System. Discovered mathematically, from Uranus's orbital perturbations, before anyone had seen it.",
+  },
+};
+
+export type QuizQuestion = {
+  prompt: string;
+  answer: string;
+};
+
+export const QUIZ_QUESTIONS: readonly QuizQuestion[] = [
+  { prompt: "Click the biggest planet", answer: "jupiter" },
+  { prompt: "Click the smallest planet", answer: "mercury" },
+  { prompt: "Click the planet with life", answer: "earth" },
+  { prompt: "Click the planet with rings", answer: "saturn" },
+  { prompt: "Click the planet closest to the Sun", answer: "mercury" },
+  { prompt: "Click the farthest planet", answer: "neptune" },
+  { prompt: "Click the hottest planet", answer: "venus" },
+  { prompt: "Click the Red Planet", answer: "mars" },
+  { prompt: "Click the planet that rotates on its side", answer: "uranus" },
+  { prompt: "Click the planet with the fastest winds", answer: "neptune" },
+  { prompt: "Click the star of the Solar System", answer: "sun" },
+  { prompt: "Click the second planet from the Sun", answer: "venus" },
+  { prompt: "Click the third planet from the Sun", answer: "earth" },
+  { prompt: "Click the fourth planet from the Sun", answer: "mars" },
+  { prompt: "Click the planet with the Great Red Spot", answer: "jupiter" },
+  { prompt: "Click the planet with Olympus Mons", answer: "mars" },
+  { prompt: "Click the planet where a day lasts longer than a year", answer: "venus" },
+  { prompt: "Click the planet with a 42-year day and 42-year night", answer: "uranus" },
+  { prompt: "Click the planet with the most moons", answer: "saturn" },
+  { prompt: "Click the planet that would float on water", answer: "saturn" },
+  { prompt: "Click the planet discovered mathematically", answer: "neptune" },
+  { prompt: "Click the planet 71% covered by water", answer: "earth" },
+  { prompt: "Click the planet with two moons", answer: "mars" },
+  { prompt: "Click the planet with the highest surface temperature", answer: "venus" },
+  { prompt: "Click the object containing 99.86% of the Solar System's mass", answer: "sun" },
+  { prompt: "Click the ice giant discovered in 1846", answer: "neptune" },
+  { prompt: "Click the gas giant with icy rings", answer: "saturn" },
+  { prompt: "Click the planet whose year lasts only 88 days", answer: "mercury" },
+  { prompt: "Click Mercury", answer: "mercury" },
+  { prompt: "Click Venus", answer: "venus" },
+  { prompt: "Click Earth", answer: "earth" },
+  { prompt: "Click Mars", answer: "mars" },
+  { prompt: "Click Jupiter", answer: "jupiter" },
+  { prompt: "Click Saturn", answer: "saturn" },
+  { prompt: "Click Uranus", answer: "uranus" },
+  { prompt: "Click Neptune", answer: "neptune" },
+  { prompt: "Click the Sun", answer: "sun" },
+];

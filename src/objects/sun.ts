@@ -9,6 +9,7 @@ const SETTLE_DISTANCE = 0.05;
 const SETTLE_VELOCITY_SQ = 0.01;
 
 export class Sun {
+  public readonly name = "sun";
   public readonly model: Mesh<SphereGeometry, ShaderMaterial>;
   public readonly material: ShaderMaterial;
   public readonly light: PointLight;

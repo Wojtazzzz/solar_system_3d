@@ -11,6 +11,12 @@ import { Planet } from "./objects/planet";
 import { createSaturnRings } from "./objects/saturnRings";
 import { settings } from "./settings";
 import {
+  bodyFacts,
+  QUIZ_QUESTIONS,
+  type BodyFact,
+  type QuizQuestion,
+} from "./planetData";
+import {
   readBool,
   readEnum,
   readNumber,
@@ -35,6 +41,7 @@ import {
 } from "three";
 
 type Draggable = {
+  readonly name: string;
   readonly mesh: Object3D;
   startDrag(): void;
   endDrag(velocity: Vector3): void;
@@ -45,8 +52,155 @@ type Quality = "low" | "medium" | "high";
 const THROW_VELOCITY_SCALE = 1.6;
 const MAX_THROW_SPEED = 60;
 const VELOCITY_WINDOW_MS = 120;
+const CLICK_DISTANCE_SQ = 25;
+const CLICK_MAX_DURATION_MS = 350;
 
 const getMaxPixelRatio = () => Math.min(window.devicePixelRatio || 1, 2);
+
+let quizActive = false;
+let quizQuestion: QuizQuestion | null = null;
+let lastQuizIndex = -1;
+let quizBannerTimeout: number | null = null;
+
+const onBodyClick = (name: string): void => {
+  if (quizActive) {
+    handleQuizAnswer(name);
+  } else {
+    showInfoPanel(name);
+  }
+};
+
+const showInfoPanel = (name: string): void => {
+  const fact = bodyFacts[name];
+  const panel = document.getElementById("infoPanel");
+  const titleEl = document.getElementById("infoPanelTitle");
+  const dataEl = document.getElementById("infoPanelData");
+  const factEl = document.getElementById("infoPanelFact");
+  if (!fact || !panel || !titleEl || !dataEl || !factEl) return;
+
+  titleEl.textContent = fact.displayName;
+  factEl.textContent = fact.funFact;
+  renderFactsTable(dataEl, fact);
+
+  panel.classList.add("info-panel--visible");
+  panel.setAttribute("aria-hidden", "false");
+};
+
+const hideInfoPanel = (): void => {
+  const panel = document.getElementById("infoPanel");
+  panel?.classList.remove("info-panel--visible");
+  panel?.setAttribute("aria-hidden", "true");
+};
+
+const renderFactsTable = (el: HTMLElement, fact: BodyFact): void => {
+  el.replaceChildren();
+  const rows: Array<[string, string]> = [
+    ["Diameter", fact.diameter],
+    ["Mass", fact.mass],
+    ["Orbital period", fact.orbitalPeriod],
+    ["Day length", fact.dayLength],
+    ["Moons", fact.moons],
+    ["Temperature", fact.temperature],
+    ["Distance from Sun", fact.distanceFromSun],
+  ];
+  for (const [label, value] of rows) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    el.appendChild(dt);
+    el.appendChild(dd);
+  }
+};
+
+const setQuizBanner = (
+  text: string,
+  state?: "correct" | "wrong",
+): void => {
+  const banner = document.getElementById("quizBanner");
+  if (!banner) return;
+  banner.textContent = text;
+  banner.classList.add("quiz-banner--visible");
+  banner.classList.remove("quiz-banner--correct", "quiz-banner--wrong");
+  if (state) banner.classList.add(`quiz-banner--${state}`);
+};
+
+const hideQuizBanner = (): void => {
+  document.getElementById("quizBanner")?.classList.remove(
+    "quiz-banner--visible",
+  );
+};
+
+const nextQuizQuestion = (): void => {
+  let i = lastQuizIndex;
+  if (QUIZ_QUESTIONS.length > 1) {
+    while (i === lastQuizIndex) {
+      i = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
+    }
+  } else {
+    i = 0;
+  }
+  lastQuizIndex = i;
+  quizQuestion = QUIZ_QUESTIONS[i];
+  setQuizBanner(quizQuestion.prompt);
+};
+
+const handleQuizAnswer = (name: string): void => {
+  if (!quizQuestion) return;
+  if (quizBannerTimeout !== null) {
+    clearTimeout(quizBannerTimeout);
+    quizBannerTimeout = null;
+  }
+  if (name === quizQuestion.answer) {
+    const label = name.charAt(0).toUpperCase() + name.slice(1);
+    setQuizBanner(`✓ ${label}`, "correct");
+    quizBannerTimeout = window.setTimeout(() => {
+      if (quizActive) nextQuizQuestion();
+    }, 1500);
+  } else {
+    setQuizBanner("Miss — try again", "wrong");
+    quizBannerTimeout = window.setTimeout(() => {
+      if (quizActive && quizQuestion) {
+        setQuizBanner(quizQuestion.prompt);
+      }
+    }, 1200);
+  }
+};
+
+const applyLabelsFromCheckbox = (): void => {
+  const checkbox = document.querySelector<HTMLInputElement>(
+    "#toggleLabelsCheckbox",
+  );
+  const container = document.querySelector<HTMLElement>(".planet-labels");
+  container?.classList.toggle(
+    "planet-labels--visible",
+    (checkbox?.checked ?? false) && !quizActive,
+  );
+};
+
+const updateQuizButton = (active: boolean): void => {
+  const btn = document.getElementById("quizToggle");
+  if (!btn) return;
+  btn.textContent = active ? "Stop quiz" : "Start quiz";
+  btn.classList.toggle("quiz-toggle--active", active);
+};
+
+const setQuizActive = (active: boolean): void => {
+  quizActive = active;
+  updateQuizButton(active);
+  applyLabelsFromCheckbox();
+  if (active) {
+    hideInfoPanel();
+    nextQuizQuestion();
+  } else {
+    quizQuestion = null;
+    hideQuizBanner();
+    if (quizBannerTimeout !== null) {
+      clearTimeout(quizBannerTimeout);
+      quizBannerTimeout = null;
+    }
+  }
+};
 
 const QUALITY_PRESETS: Record<Quality, { pixelRatio: number }> = {
   low: { pixelRatio: 1 },
@@ -286,7 +440,10 @@ const initSettingsPanel = (
   });
 
   bindCheckbox("toggleLabelsCheckbox", "la", true, (v) => {
-    labelsContainer?.classList.toggle("planet-labels--visible", v);
+    labelsContainer?.classList.toggle(
+      "planet-labels--visible",
+      v && !quizActive,
+    );
   });
 
   bindCheckbox("toggleTrailsCheckbox", "tr", true, (v) => {
@@ -297,6 +454,14 @@ const initSettingsPanel = (
     settings.realInclinations = v;
     planets.forEach((planet) => planet.resetTrail());
   });
+
+  document.getElementById("quizToggle")?.addEventListener("click", () => {
+    setQuizActive(!quizActive);
+  });
+
+  document
+    .getElementById("infoPanelClose")
+    ?.addEventListener("click", hideInfoPanel);
 
   bindRange(
     "timeSpeedSlider",
@@ -348,6 +513,9 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
 
   let active: Draggable | null = null;
   const history: Array<{ pos: Vector3; time: number }> = [];
+  let downClientX = 0;
+  let downClientY = 0;
+  let downTime = 0;
 
   const setPointer = (event: PointerEvent): void => {
     const rect = canvas.getBoundingClientRect();
@@ -392,6 +560,9 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
       pos: picked.mesh.position.clone(),
       time: performance.now(),
     });
+    downClientX = event.clientX;
+    downClientY = event.clientY;
+    downTime = performance.now();
 
     canvas.setPointerCapture(event.pointerId);
     canvas.style.cursor = "grabbing";
@@ -424,8 +595,16 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
   const release = (event: PointerEvent): void => {
     if (!active) return;
 
+    const dx = event.clientX - downClientX;
+    const dy = event.clientY - downClientY;
+    const elapsed = performance.now() - downTime;
+    const wasClick =
+      dx * dx + dy * dy < CLICK_DISTANCE_SQ &&
+      elapsed < CLICK_MAX_DURATION_MS;
+    const clickedName = active.name;
+
     const velocity = new Vector3();
-    if (history.length >= 2) {
+    if (history.length >= 2 && !wasClick) {
       const first = history[0];
       const last = history[history.length - 1];
       const seconds = (last.time - first.time) / 1000;
@@ -448,6 +627,10 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
 
     if (canvas.hasPointerCapture(event.pointerId)) {
       canvas.releasePointerCapture(event.pointerId);
+    }
+
+    if (wasClick) {
+      onBodyClick(clickedName);
     }
   };
 

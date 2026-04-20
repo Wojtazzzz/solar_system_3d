@@ -29,6 +29,9 @@
       <div class="zoom-label">
         <span class="scroll-text">Scroll to zoom</span>
         <span class="slide-text">Slide to zoom</span>
+        <span class="click-text">Click planet for info</span>
+        <span class="tap-text">Tap planet for info</span>
+        <button class="quiz-toggle" id="quizToggle" type="button">Start quiz</button>
       </div>
 
       <details class="config-panel">
@@ -83,9 +86,18 @@
         >
       </div>
 
+      <aside class="info-panel" id="infoPanel" aria-hidden="true">
+        <button class="info-panel__close" id="infoPanelClose" aria-label="Close">×</button>
+        <h2 class="info-panel__title" id="infoPanelTitle"></h2>
+        <dl class="info-panel__data" id="infoPanelData"></dl>
+        <p class="info-panel__fact" id="infoPanelFact"></p>
+      </aside>
+
+      <div class="quiz-banner" id="quizBanner" aria-hidden="true"></div>
+
       <div class="slider-container">
         <input
-          aria-label="Przybliż lub oddal się od słońca"
+          aria-label="Zoom in or out from the Sun"
           class="slider"
           id="zoomSlider"
           type="range"

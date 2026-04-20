@@ -161,6 +161,153 @@ body {
   will-change: transform;
 }
 
+.info-panel {
+  box-sizing: border-box;
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%) translateX(420px);
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #010101;
+  border: 1px solid var(--main-text-color);
+  border-radius: 8px;
+  padding: var(--padding);
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.info-panel--visible {
+  transform: translateY(-50%) translateX(0);
+  opacity: 0.95;
+  pointer-events: auto;
+}
+
+.info-panel__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: 1px solid var(--main-text-color);
+  color: var(--main-text-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: "Orbitron", sans-serif;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.info-panel__close:hover {
+  background: var(--main-text-color);
+  color: #000;
+}
+
+.info-panel__title {
+  margin: 0 0 16px 0;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 20px;
+  padding-right: 40px;
+}
+
+.info-panel__data {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+}
+
+.info-panel__data dt {
+  opacity: 0.6;
+}
+
+.info-panel__data dd {
+  margin: 0;
+  text-align: right;
+}
+
+.info-panel__fact {
+  font-size: 12px;
+  line-height: 1.55;
+  text-transform: none;
+  letter-spacing: 1px;
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-style: italic;
+  opacity: 0.9;
+}
+
+@media (max-width: 767px) {
+  .info-panel {
+    top: auto;
+    left: 20px;
+    right: 20px;
+    bottom: 80px;
+    width: auto;
+    max-height: 55vh;
+    transform: translateY(120%);
+  }
+
+  .info-panel--visible {
+    transform: translateY(0);
+  }
+}
+
+.quiz-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  padding: 12px 28px;
+  background: #010101;
+  border: 1px solid var(--main-text-color);
+  border-radius: 24px;
+  z-index: 3;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease,
+    border-color 0.2s ease, color 0.2s ease;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 12px;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+  max-width: calc(100vw - 40px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quiz-banner--visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 0.95;
+}
+
+.quiz-banner--correct {
+  border-color: #00e676;
+  color: #00e676;
+}
+
+.quiz-banner--wrong {
+  border-color: #ff5252;
+  color: #ff5252;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -188,22 +335,59 @@ canvas {
   left: 0;
 
   .scroll-text,
-  .slide-text {
+  .slide-text,
+  .click-text,
+  .tap-text {
     text-transform: uppercase;
+    display: block;
   }
 
-  .scroll-text {
+  .click-text,
+  .tap-text {
+    margin-top: 6px;
+    opacity: 0.6;
+    font-size: 11px;
+  }
+
+  .scroll-text,
+  .click-text {
     display: none;
 
     @media (min-width: 1024px) {
-      display: inline;
+      display: block;
     }
   }
 
   @media (min-width: 1024px) {
-    .slide-text {
+    .slide-text,
+    .tap-text {
       display: none;
     }
+  }
+
+  .quiz-toggle {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--main-text-color);
+    color: var(--main-text-color);
+    font-family: "Orbitron", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding: 8px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .quiz-toggle:hover {
+    background: var(--main-text-color);
+    color: #000;
+  }
+
+  .quiz-toggle--active {
+    background: var(--main-text-color);
+    color: #000;
   }
 }
 
