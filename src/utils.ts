@@ -51,6 +51,7 @@ const PLANET_NAMES = [
   saturn.name,
   uranus.name,
   neptune.name,
+  "moon",
 ] as const;
 
 export const loadPlanetTextures = async (): Promise<Map<string, Texture>> => {

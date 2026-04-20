@@ -10,6 +10,7 @@ import { Star, createStarsInstancedMesh } from "./objects/star";
 import { Planet } from "./objects/planet";
 import { createSaturnRings } from "./objects/saturnRings";
 import { SunFlares } from "./objects/sunFlares";
+import { Moon } from "./objects/moon";
 import { createPostProcessing, type PostProcessing } from "./postProcessing";
 import { settings } from "./settings";
 import {
@@ -249,6 +250,14 @@ const start = async () => {
   const saturnRings = saturn ? createSaturnRings(saturn.radius) : null;
   if (saturnRings) scene.add(saturnRings);
 
+  const earth = planets.find((p) => p.name === "earth") ?? null;
+  const moonTexture = textures.get("moon");
+  const moon =
+    earth && moonTexture
+      ? new Moon(earth, earth.radius * 2.2, 0.08, earth.radius * 0.27, moonTexture)
+      : null;
+  if (moon) scene.add(moon.mesh);
+
   const postProcessing = createPostProcessing(renderer, scene, camera.object);
 
   const { updateLabels } = createPlanetLabels(planets);
@@ -307,6 +316,11 @@ const start = async () => {
 
     if (saturn && saturnRings) {
       saturnRings.position.copy(saturn.mesh.position);
+    }
+
+    if (moon) {
+      moon.updatePosition();
+      moon.updateRotation();
     }
 
     stars.forEach((star) => star.tryToExplode(camera.object.position));
