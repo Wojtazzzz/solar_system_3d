@@ -1,76 +1,71 @@
 import {
-  Mesh,
-  MeshStandardMaterial,
+  InstancedMesh,
+  Matrix4,
+  MeshBasicMaterial,
   SphereGeometry,
   MathUtils,
-  Vector3, MeshBasicMaterial,
+  Vector3,
 } from "three";
-import {stars, sun} from "../consts";
+import { stars, sun } from "../consts";
+
+export const createStarsInstancedMesh = (count: number): InstancedMesh => {
+  const geometry = new SphereGeometry(stars.radius, 8, 8);
+  const material = new MeshBasicMaterial({ color: stars.color });
+  const mesh = new InstancedMesh(geometry, material, count);
+  mesh.frustumCulled = false;
+  return mesh;
+};
 
 export class Star {
-  public readonly mesh: Mesh<SphereGeometry, MeshStandardMaterial | MeshBasicMaterial>;
-  public readonly explosion: Mesh<SphereGeometry, MeshStandardMaterial | MeshBasicMaterial>;
+  public readonly position = new Vector3();
+  private readonly matrix = new Matrix4();
+  private scale = 1;
 
-  constructor() {
-    this.mesh = new Mesh(
-      new SphereGeometry(stars.radius, 32, 32),
-      new MeshBasicMaterial({ color: stars.color }),
-    );
+  constructor(
+    private readonly instancedMesh: InstancedMesh,
+    private readonly index: number,
+  ) {
+    const sunPos = new Vector3(sun.positionX, sun.positionY, sun.positionZ);
 
-    this.explosion = new Mesh(
-      new SphereGeometry(stars.radius, 32, 32),
-      new MeshBasicMaterial({ color: stars.color }),
-    );
-
-    const generateCoords = () => {
-      let coords: [number, number, number];
-
-      do {
-        coords = [
-          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
-          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
-          MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
-        ];
-      } while (
-        new Vector3(...coords).distanceTo({
-          x: sun.positionX,
-          y: sun.positionY,
-          z: sun.positionZ,
-        }) < stars.minRenderDistanceFromSun
+    do {
+      this.position.set(
+        MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
+        MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
+        MathUtils.randFloatSpread(stars.maxRenderDistanceFromSun * 2),
       );
+    } while (
+      this.position.distanceTo(sunPos) < stars.minRenderDistanceFromSun
+    );
 
-      return coords;
-    };
-
-    const [x, y, z] = generateCoords();
-
-    this.mesh.position.set(x, y, z);
-    this.explosion.position.set(x, y, z);
+    this.applyMatrix();
   }
 
-  tryToExplode(currentCameraPosition: Vector3) {
+  private applyMatrix(): void {
+    this.matrix.makeScale(this.scale, this.scale, this.scale);
+    this.matrix.setPosition(this.position);
+    this.instancedMesh.setMatrixAt(this.index, this.matrix);
+    this.instancedMesh.instanceMatrix.needsUpdate = true;
+  }
+
+  tryToExplode(currentCameraPosition: Vector3): void {
     if (Math.random() <= 1 - stars.chanceToExplode) {
       return;
     }
 
     const starDistanceToCamera = currentCameraPosition.distanceTo(
-      this.mesh.position,
+      this.position,
     );
 
-    if (
-      starDistanceToCamera < stars.maxDistanceFromCameraToPreventExplode
-    ) {
+    if (starDistanceToCamera < stars.maxDistanceFromCameraToPreventExplode) {
       return;
     }
 
-    this.explosion.scale.set(
-        stars.explosionRadiusScale,
-        stars.explosionRadiusScale,
-        stars.explosionRadiusScale,
-    );
+    this.scale = stars.explosionRadiusScale;
+    this.applyMatrix();
 
     setTimeout(() => {
-      this.explosion.scale.set(1, 1, 1);
+      this.scale = 1;
+      this.applyMatrix();
     }, 16 * stars.explosionLengthInFrames);
   }
 }

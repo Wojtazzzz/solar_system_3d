@@ -3,17 +3,18 @@ import {
   initRenderer,
   initCamera,
   createSolarSystemPlanets,
+  loadPlanetTextures,
 } from "./utils";
 import { Sun } from "./objects/sun";
-import { Star } from "./objects/star";
+import { Star, createStarsInstancedMesh } from "./objects/star";
 import {
   stars as starsOptions,
   camera as cameraOptions,
   ZOOM_SPEED,
 } from "./consts";
-import {Clock} from "three";
+import { Clock } from "three";
 
-localStorage.setItem('isPlanetsShadow', '');
+localStorage.setItem("isPlanetsShadow", "");
 
 const renderer = initRenderer();
 const scene = initScene();
@@ -24,53 +25,57 @@ slider.min = String(cameraOptions.minRadius);
 slider.max = String(cameraOptions.maxRadius);
 slider.value = String(cameraOptions.initialRadius);
 
-const sun = new Sun();
-const planets = createSolarSystemPlanets();
-const stars: Star[] = [];
+const start = async () => {
+  const textures = await loadPlanetTextures();
 
-Array.from({ length: starsOptions.count }).forEach(() => stars.push(new Star()));
+  const sun = new Sun();
+  const planets = createSolarSystemPlanets(textures);
 
-stars.forEach((star) => scene.add(star.mesh));
-stars.forEach((star) => scene.add(star.explosion));
+  const starsMesh = createStarsInstancedMesh(starsOptions.count);
+  const stars: Star[] = Array.from(
+    { length: starsOptions.count },
+    (_, i) => new Star(starsMesh, i),
+  );
 
-scene.add(
-  camera.object,
-  sun.model,
-  sun.getLight(),
-);
-
-planets.forEach((planet) => scene.add(planet.mesh));
-
-const clock = new Clock();
-
-const animate = () => {
-  requestAnimationFrame(animate);
-
-  camera.updatePosition();
-
-  sun.updateNoiseAnimation(clock.getElapsedTime());
+  scene.add(camera.object, sun.model, sun.getLight(), starsMesh);
 
   planets.forEach((planet) => {
-    planet.updateRotation();
-    planet.updatePosition();
-
-    const [oldTrail, newTrail] = planet.updateTrail();
-
-    if (oldTrail) {
-      scene.remove(oldTrail);
-    }
-
-    if (newTrail) {
-      scene.add(newTrail);
-    }
+    scene.add(planet.mesh);
+    scene.add(planet.trail);
   });
 
-  stars.forEach((star) => star.tryToExplode(camera.object.position));
+  document
+    .querySelector("#togglePlanetsShadowCheckbox")
+    ?.addEventListener("change", (e) => {
+      const isShadow = (e.target as HTMLInputElement).checked;
+      localStorage.setItem("isPlanetsShadow", isShadow ? "1" : "");
+      planets.forEach((planet) => planet.setIsShadow(isShadow));
+    });
 
-  renderer.render(scene, camera.object);
+  const clock = new Clock();
+
+  const animate = () => {
+    requestAnimationFrame(animate);
+
+    camera.updatePosition();
+
+    sun.updateNoiseAnimation(clock.getElapsedTime());
+
+    planets.forEach((planet) => {
+      planet.updateRotation();
+      planet.updatePosition();
+      planet.updateTrail();
+    });
+
+    stars.forEach((star) => star.tryToExplode(camera.object.position));
+
+    renderer.render(scene, camera.object);
+  };
+
+  animate();
 };
 
-animate();
+start();
 
 window.addEventListener("wheel", (event: WheelEvent) => {
   camera.setRadius(camera.getRadius() + event.deltaY * ZOOM_SPEED * 0.01);
@@ -82,35 +87,26 @@ slider.addEventListener("input", () => {
   camera.setRadius(parseFloat(slider.value));
 });
 
-const configPanel = document.querySelector<HTMLDetailsElement>('.config-panel');
+const configPanel = document.querySelector<HTMLDetailsElement>(".config-panel");
 
 let offsetX = 0;
 let offsetY = 0;
 let isDragging = false;
 
-configPanel?.addEventListener('mousedown', (e) => {
+configPanel?.addEventListener("mousedown", (e) => {
   isDragging = true;
   offsetX = e.clientX - configPanel?.offsetLeft;
   offsetY = e.clientY - configPanel?.offsetTop;
 });
 
-document.addEventListener('mousemove', (e) => {
+document.addEventListener("mousemove", (e) => {
   if (!isDragging) return;
   if (!configPanel) return;
 
-  configPanel.style.left = (e.clientX - offsetX) + 'px';
-  configPanel.style.top = (e.clientY - offsetY) + 'px';
+  configPanel.style.left = e.clientX - offsetX + "px";
+  configPanel.style.top = e.clientY - offsetY + "px";
 });
 
-document.addEventListener('mouseup', () => {
+document.addEventListener("mouseup", () => {
   isDragging = false;
 });
-
-document.querySelector('#togglePlanetsShadowCheckbox')
-    ?.addEventListener('change', (e) => {
-      localStorage.setItem('isPlanetsShadow', (e.target as HTMLInputElement).checked ? '1' : '');
-
-      planets.forEach((planet) => {
-        planet.setIsShadow(Boolean(localStorage.getItem('isPlanetsShadow')));
-      });
-    });
