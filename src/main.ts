@@ -9,6 +9,8 @@ import { Sun } from "./objects/sun";
 import { Star, createStarsInstancedMesh } from "./objects/star";
 import { Planet } from "./objects/planet";
 import { createSaturnRings } from "./objects/saturnRings";
+import { SunFlares } from "./objects/sunFlares";
+import { createPostProcessing, type PostProcessing } from "./postProcessing";
 import { settings } from "./settings";
 import {
   bodyFacts,
@@ -26,6 +28,7 @@ import {
 } from "./urlState";
 import {
   stars as starsOptions,
+  sun as sunOptions,
   camera as cameraOptions,
   ZOOM_SPEED,
 } from "./consts";
@@ -233,6 +236,9 @@ const start = async () => {
 
   scene.add(camera.object, sun.model, sun.getLight(), starsMesh);
 
+  const sunFlares = new SunFlares(sunOptions.radius);
+  sun.model.add(sunFlares.points);
+
   planets.forEach((planet) => {
     scene.add(planet.mesh);
     scene.add(planet.trail);
@@ -242,6 +248,8 @@ const start = async () => {
   const saturn = planets.find((p) => p.name === "saturn") ?? null;
   const saturnRings = saturn ? createSaturnRings(saturn.radius) : null;
   if (saturnRings) scene.add(saturnRings);
+
+  const postProcessing = createPostProcessing(renderer, scene, camera.object);
 
   const { updateLabels } = createPlanetLabels(planets);
 
@@ -262,8 +270,18 @@ const start = async () => {
     }
   };
 
-  initSettingsPanel(planets, rebuildStars);
+  initSettingsPanel(planets, rebuildStars, postProcessing);
   initDragAndDrop(sun, planets);
+
+  window.addEventListener("resize", () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    camera.object.aspect = w / h;
+    camera.object.updateProjectionMatrix();
+    renderer.setSize(w, h);
+    postProcessing.setSize(w, h);
+    sunFlares.setPixelRatio(renderer.getPixelRatio());
+  });
 
   const clock = new Clock();
   let scaledElapsed = 0;
@@ -278,6 +296,8 @@ const start = async () => {
 
     sun.updateNoiseAnimation(scaledElapsed);
     sun.updatePosition(dt);
+    sunFlares.setPixelRatio(renderer.getPixelRatio());
+    sunFlares.update(dt * settings.timeSpeed);
 
     planets.forEach((planet) => {
       planet.updateRotation();
@@ -293,7 +313,7 @@ const start = async () => {
 
     updateLabels();
 
-    renderer.render(scene, camera.object);
+    postProcessing.composer.render();
   };
 
   camera.updatePosition();
@@ -302,7 +322,7 @@ const start = async () => {
     planet.updateTrail();
   });
   renderer.compile(scene, camera.object);
-  renderer.render(scene, camera.object);
+  postProcessing.composer.render();
 
   const loader = document.getElementById("loader");
   loader?.classList.add("loader--hidden");
@@ -427,6 +447,7 @@ const bindSelect = <T extends string>(
 const initSettingsPanel = (
   planets: Planet[],
   rebuildStars: (count: number) => void,
+  postProcessing: PostProcessing,
 ): void => {
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
 
@@ -493,6 +514,7 @@ const initSettingsPanel = (
       const preset = QUALITY_PRESETS[q];
       renderer.setPixelRatio(preset.pixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
+      postProcessing.setSize(window.innerWidth, window.innerHeight);
     },
   );
 };

@@ -28,7 +28,7 @@ export class Sun {
     this.material = this.createSunMaterial();
 
     this.model = new Mesh(
-      new SphereGeometry(sun.radius, 32, 32),
+      new SphereGeometry(sun.radius, 96, 96),
       this.material,
     );
     this.model.position.copy(this.homePosition);
@@ -100,12 +100,20 @@ export class Sun {
         emissiveIntensity: { value: sun.noiseIntensity },
       },
       vertexShader: `
+        uniform float time;
         varying vec2 vUv;
         varying vec3 vPosition;
+
+        ${noise}
+
         void main() {
             vUv = uv;
             vPosition = position;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+            float roil = noise(position * 2.2 + vec3(time * 0.3)) * 0.02;
+            vec3 displaced = position + normalize(position) * roil;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
         }
     `,
       fragmentShader: `
@@ -118,9 +126,19 @@ export class Sun {
 
         void main() {
             float scale = 5.0 / 0.7;
-            float noiseValue = noise(vPosition * scale + time);
-            vec3 color = mix(vec3(1.0, 0.1, 0.0), vec3(1.0, 0.2, 0.0), noiseValue);
-            float intensity = (noiseValue * 0.5 + 0.5) * emissiveIntensity;
+            float n = noise(vPosition * scale + vec3(time));
+            float flareHot = smoothstep(0.3, 0.8, noise(vPosition * 1.3 + vec3(time * 0.3)));
+
+            vec3 base = mix(
+                vec3(1.0, 0.15, 0.0),
+                vec3(1.0, 0.55, 0.1),
+                n * 0.5 + 0.5
+            );
+            vec3 color = mix(base, vec3(1.0, 0.95, 0.55), flareHot * 0.75);
+
+            float intensity = (n * 0.5 + 0.5) * emissiveIntensity;
+            intensity *= (1.0 + flareHot * 0.5);
+
             gl_FragColor = vec4(color * intensity, 1.0);
         }
     `,
