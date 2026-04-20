@@ -225,21 +225,20 @@ canvas {
 
 details.config-panel {
   width: 320px;
+  max-width: calc(100vw - 40px);
   background-color: #010101;
   padding: var(--padding);
-  position: absolute;
-  top: 340px;
+  position: fixed;
+  top: 72px;
   left: 20px;
   z-index: 2;
   opacity: 0.9;
   border-radius: 8px;
   text-transform: uppercase;
   border: 1px solid var(--main-text-color);
-  user-select: none;
-  cursor: grab;
 
-  &:active {
-    cursor: grabbing;
+  summary {
+    cursor: pointer;
   }
 
   summary::marker {
@@ -250,5 +249,11 @@ details.config-panel {
     padding-top: var(--padding);
     font-size: 12px;
     overflow: hidden;
+  }
+
+  @media (min-width: 1024px) {
+    top: auto;
+    bottom: 20px;
+    left: 20px;
   }
 }
