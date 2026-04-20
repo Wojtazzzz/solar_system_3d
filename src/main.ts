@@ -72,7 +72,21 @@ const start = async () => {
     renderer.render(scene, camera.object);
   };
 
-  animate();
+  camera.updatePosition();
+  planets.forEach((planet) => {
+    planet.updatePosition();
+    planet.updateTrail();
+  });
+  renderer.compile(scene, camera.object);
+  renderer.render(scene, camera.object);
+
+  const loader = document.getElementById("loader");
+  loader?.classList.add("loader--hidden");
+  loader?.addEventListener("transitionend", () => loader.remove(), {
+    once: true,
+  });
+
+  requestAnimationFrame(animate);
 };
 
 start();

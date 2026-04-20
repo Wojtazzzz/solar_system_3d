@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <div id="loader" class="loader" role="status" aria-live="polite">
+      <div class="loader-system">
+        <div class="loader-orbit loader-orbit--outer">
+          <div class="loader-planet loader-planet--outer"></div>
+        </div>
+        <div class="loader-orbit loader-orbit--inner">
+          <div class="loader-planet loader-planet--inner"></div>
+        </div>
+        <div class="loader-sun"></div>
+      </div>
+      <p class="loader-text">
+        Loading solar system<span class="loader-dots"><span>.</span><span>.</span><span>.</span></span>
+      </p>
+    </div>
+
     <main id="app">
       <h1 class="sr-only">Solar System 3D</h1>
 
