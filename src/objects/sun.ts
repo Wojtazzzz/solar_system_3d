@@ -1,10 +1,27 @@
-import { Mesh, PointLight, ShaderMaterial, SphereGeometry } from "three";
+import { Mesh, PointLight, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import { sun } from "../consts";
+
+type DragState = "idle" | "dragging" | "returning";
+
+const SPRING_STIFFNESS = 3.2;
+const SPRING_DAMPING = 1.9;
+const SETTLE_DISTANCE = 0.05;
+const SETTLE_VELOCITY_SQ = 0.01;
 
 export class Sun {
   public readonly model: Mesh<SphereGeometry, ShaderMaterial>;
   public readonly material: ShaderMaterial;
   public readonly light: PointLight;
+
+  private readonly homePosition = new Vector3(
+    sun.positionX,
+    sun.positionY,
+    sun.positionZ,
+  );
+  private readonly velocity = new Vector3();
+  private readonly toHome = new Vector3();
+  private readonly acceleration = new Vector3();
+  private dragState: DragState = "idle";
 
   constructor() {
     this.material = this.createSunMaterial();
@@ -13,14 +30,58 @@ export class Sun {
       new SphereGeometry(sun.radius, 32, 32),
       this.material,
     );
-    this.model.position.set(sun.positionX, sun.positionY, sun.positionZ);
+    this.model.position.copy(this.homePosition);
 
     this.light = new PointLight(
       sun.lightColor,
       sun.lightIntensity,
       sun.lightDistance,
     );
-    this.light.position.set(sun.positionX, sun.positionY, sun.positionZ);
+    this.light.position.copy(this.homePosition);
+  }
+
+  get mesh(): Mesh<SphereGeometry, ShaderMaterial> {
+    return this.model;
+  }
+
+  getHomePosition(): Vector3 {
+    return this.homePosition;
+  }
+
+  startDrag(): void {
+    this.dragState = "dragging";
+    this.velocity.set(0, 0, 0);
+  }
+
+  endDrag(releaseVelocity: Vector3): void {
+    this.dragState = "returning";
+    this.velocity.copy(releaseVelocity);
+  }
+
+  updatePosition(dt: number): void {
+    if (this.dragState === "returning" && dt > 0) {
+      this.toHome.copy(this.homePosition).sub(this.model.position);
+      const distance = this.toHome.length();
+
+      this.acceleration
+        .copy(this.toHome)
+        .multiplyScalar(SPRING_STIFFNESS)
+        .addScaledVector(this.velocity, -SPRING_DAMPING);
+
+      this.velocity.addScaledVector(this.acceleration, dt);
+      this.model.position.addScaledVector(this.velocity, dt);
+
+      if (
+        distance < SETTLE_DISTANCE &&
+        this.velocity.lengthSq() < SETTLE_VELOCITY_SQ
+      ) {
+        this.model.position.copy(this.homePosition);
+        this.velocity.set(0, 0, 0);
+        this.dragState = "idle";
+      }
+    }
+
+    this.light.position.copy(this.model.position);
   }
 
   updateNoiseAnimation(time: number) {

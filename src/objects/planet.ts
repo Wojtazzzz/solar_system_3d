@@ -7,12 +7,20 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   SphereGeometry,
+  Vector3,
   type Texture,
 } from "three";
 import {
   planet,
   USE_REAL_PLANET_INCLINATION,
 } from "../consts";
+
+type DragState = "idle" | "dragging" | "returning";
+
+const SPRING_STIFFNESS = 3.2;
+const SPRING_DAMPING = 1.9;
+const SETTLE_DISTANCE = 0.05;
+const SETTLE_VELOCITY_SQ = 0.01;
 
 export class Planet {
   public mesh: Mesh<SphereGeometry, MeshBasicMaterial | MeshStandardMaterial>;
@@ -21,6 +29,12 @@ export class Planet {
   private readonly trailPositions: Float32Array;
   private readonly maxTrailLength: number;
   private trailCount = 0;
+
+  private readonly velocity = new Vector3();
+  private readonly homeCache = new Vector3();
+  private readonly toHome = new Vector3();
+  private readonly acceleration = new Vector3();
+  private dragState: DragState = "idle";
 
   public constructor(
     public readonly name: string,
@@ -57,16 +71,56 @@ export class Planet {
     this.trail.frustumCulled = false;
   }
 
-  updatePosition() {
+  getHomePosition(target: Vector3 = this.homeCache): Vector3 {
+    target.set(
+      this.orbitalRadius * planet.orbitalRadiusScale * Math.cos(this.theta),
+      USE_REAL_PLANET_INCLINATION
+        ? this.orbitalRadius * Math.sin(this.inclination)
+        : 0,
+      this.orbitalRadius * planet.orbitalRadiusScale * Math.sin(this.theta),
+    );
+    return target;
+  }
+
+  startDrag(): void {
+    this.dragState = "dragging";
+    this.velocity.set(0, 0, 0);
+  }
+
+  endDrag(releaseVelocity: Vector3): void {
+    this.dragState = "returning";
+    this.velocity.copy(releaseVelocity);
+  }
+
+  updatePosition(dt: number = 0): void {
     this.theta += this.orbitalSpeed * 0.4;
 
-    this.mesh.position.x =
-      this.orbitalRadius * planet.orbitalRadiusScale * Math.cos(this.theta);
-    this.mesh.position.z =
-      this.orbitalRadius * planet.orbitalRadiusScale * Math.sin(this.theta);
+    if (this.dragState === "idle") {
+      this.getHomePosition(this.mesh.position);
+      return;
+    }
 
-    if (USE_REAL_PLANET_INCLINATION) {
-      this.mesh.position.y = this.orbitalRadius * Math.sin(this.inclination);
+    if (this.dragState === "returning" && dt > 0) {
+      this.getHomePosition(this.homeCache);
+      this.toHome.copy(this.homeCache).sub(this.mesh.position);
+      const distance = this.toHome.length();
+
+      this.acceleration
+        .copy(this.toHome)
+        .multiplyScalar(SPRING_STIFFNESS)
+        .addScaledVector(this.velocity, -SPRING_DAMPING);
+
+      this.velocity.addScaledVector(this.acceleration, dt);
+      this.mesh.position.addScaledVector(this.velocity, dt);
+
+      if (
+        distance < SETTLE_DISTANCE &&
+        this.velocity.lengthSq() < SETTLE_VELOCITY_SQ
+      ) {
+        this.mesh.position.copy(this.homeCache);
+        this.velocity.set(0, 0, 0);
+        this.dragState = "idle";
+      }
     }
   }
 
