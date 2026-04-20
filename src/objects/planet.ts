@@ -3,6 +3,7 @@ import {
   BufferGeometry,
   Line,
   LineBasicMaterial,
+  LineLoop,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -14,6 +15,7 @@ import {
   planet,
   USE_REAL_PLANET_INCLINATION,
 } from "../consts";
+import { settings } from "../settings";
 
 type DragState = "idle" | "dragging" | "returning";
 
@@ -22,9 +24,14 @@ const SPRING_DAMPING = 1.9;
 const SETTLE_DISTANCE = 0.05;
 const SETTLE_VELOCITY_SQ = 0.01;
 
+const ORBIT_SEGMENTS = 128;
+const ORBIT_COLOR = 0x444444;
+const ORBIT_OPACITY = 0.4;
+
 export class Planet {
   public mesh: Mesh<SphereGeometry, MeshBasicMaterial | MeshStandardMaterial>;
   public readonly trail: Line<BufferGeometry, LineBasicMaterial>;
+  public readonly orbitLine: LineLoop<BufferGeometry, LineBasicMaterial>;
   private theta = 0;
   private readonly trailPositions: Float32Array;
   private readonly maxTrailLength: number;
@@ -69,14 +76,38 @@ export class Planet {
       new LineBasicMaterial({ color: planet.trailColor }),
     );
     this.trail.frustumCulled = false;
+
+    const orbitRadius = orbitalRadius * planet.orbitalRadiusScale;
+    const orbitPoints = new Float32Array(ORBIT_SEGMENTS * 3);
+    for (let i = 0; i < ORBIT_SEGMENTS; i++) {
+      const angle = (i / ORBIT_SEGMENTS) * Math.PI * 2;
+      orbitPoints[i * 3] = orbitRadius * Math.cos(angle);
+      orbitPoints[i * 3 + 1] = 0;
+      orbitPoints[i * 3 + 2] = orbitRadius * Math.sin(angle);
+    }
+    const orbitGeometry = new BufferGeometry();
+    orbitGeometry.setAttribute(
+      "position",
+      new BufferAttribute(orbitPoints, 3),
+    );
+
+    this.orbitLine = new LineLoop(
+      orbitGeometry,
+      new LineBasicMaterial({
+        color: ORBIT_COLOR,
+        transparent: true,
+        opacity: ORBIT_OPACITY,
+      }),
+    );
+    this.orbitLine.visible = false;
   }
 
   getHomePosition(target: Vector3 = this.homeCache): Vector3 {
+    const useInclination =
+      settings.realInclinations || USE_REAL_PLANET_INCLINATION;
     target.set(
       this.orbitalRadius * planet.orbitalRadiusScale * Math.cos(this.theta),
-      USE_REAL_PLANET_INCLINATION
-        ? this.orbitalRadius * Math.sin(this.inclination)
-        : 0,
+      useInclination ? this.orbitalRadius * Math.sin(this.inclination) : 0,
       this.orbitalRadius * planet.orbitalRadiusScale * Math.sin(this.theta),
     );
     return target;
@@ -93,7 +124,13 @@ export class Planet {
   }
 
   updatePosition(dt: number = 0): void {
-    this.theta += this.orbitalSpeed * 0.4;
+    this.theta += this.orbitalSpeed * 0.4 * settings.timeSpeed;
+
+    const useInclination =
+      settings.realInclinations || USE_REAL_PLANET_INCLINATION;
+    this.orbitLine.position.y = useInclination
+      ? this.orbitalRadius * Math.sin(this.inclination)
+      : 0;
 
     if (this.dragState === "idle") {
       this.getHomePosition(this.mesh.position);
@@ -125,8 +162,10 @@ export class Planet {
   }
 
   updateRotation() {
-    this.mesh.rotation.x += planet.rotationSpeedX / 1000;
-    this.mesh.rotation.y += planet.rotationSpeedY / 1000;
+    this.mesh.rotation.x +=
+      (planet.rotationSpeedX / 1000) * settings.timeSpeed;
+    this.mesh.rotation.y +=
+      (planet.rotationSpeedY / 1000) * settings.timeSpeed;
   }
 
   setIsShadow(isShadow: boolean) {
@@ -137,6 +176,11 @@ export class Planet {
       this.mesh.material.dispose();
       this.mesh.material = new MeshBasicMaterial({ map: this.texture });
     }
+  }
+
+  resetTrail(): void {
+    this.trailCount = 0;
+    this.trail.geometry.setDrawRange(0, 0);
   }
 
   updateTrail() {

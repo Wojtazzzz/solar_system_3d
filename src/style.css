@@ -135,6 +135,32 @@ body {
   30% { opacity: 1; }
 }
 
+.planet-labels {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  display: none;
+}
+
+.planet-labels--visible {
+  display: block;
+}
+
+.planet-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+  will-change: transform;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -249,6 +275,46 @@ details.config-panel {
     padding-top: var(--padding);
     font-size: 12px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .config-row--stacked {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .config-row output {
+    opacity: 0.7;
+    margin-left: 8px;
+  }
+
+  .config-row input[type="range"],
+  .config-row select {
+    width: 100%;
+  }
+
+  .config-row select {
+    background: #000;
+    color: var(--main-text-color);
+    border: 1px solid var(--main-text-color);
+    padding: 4px 8px;
+    font-family: "Orbitron", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
   }
 
   @media (min-width: 1024px) {

@@ -8,6 +8,7 @@ import {
 import { Sun } from "./objects/sun";
 import { Star, createStarsInstancedMesh } from "./objects/star";
 import { Planet } from "./objects/planet";
+import { settings } from "./settings";
 import {
   stars as starsOptions,
   camera as cameraOptions,
@@ -15,6 +16,7 @@ import {
 } from "./consts";
 import {
   Clock,
+  type MeshBasicMaterial,
   Plane,
   Raycaster,
   Vector2,
@@ -29,9 +31,19 @@ type Draggable = {
   endDrag(velocity: Vector3): void;
 };
 
+type Quality = "low" | "medium" | "high";
+
 const THROW_VELOCITY_SCALE = 1.6;
 const MAX_THROW_SPEED = 60;
 const VELOCITY_WINDOW_MS = 120;
+
+const getMaxPixelRatio = () => Math.min(window.devicePixelRatio || 1, 2);
+
+const QUALITY_PRESETS: Record<Quality, { pixelRatio: number }> = {
+  low: { pixelRatio: 1 },
+  medium: { pixelRatio: Math.min(getMaxPixelRatio(), 1.5) },
+  high: { pixelRatio: getMaxPixelRatio() },
+};
 
 localStorage.setItem("isPlanetsShadow", "");
 
@@ -50,8 +62,8 @@ const start = async () => {
   const sun = new Sun();
   const planets = createSolarSystemPlanets(textures);
 
-  const starsMesh = createStarsInstancedMesh(starsOptions.count);
-  const stars: Star[] = Array.from(
+  let starsMesh = createStarsInstancedMesh(starsOptions.count);
+  let stars: Star[] = Array.from(
     { length: starsOptions.count },
     (_, i) => new Star(starsMesh, i),
   );
@@ -61,28 +73,43 @@ const start = async () => {
   planets.forEach((planet) => {
     scene.add(planet.mesh);
     scene.add(planet.trail);
+    scene.add(planet.orbitLine);
   });
 
-  document
-    .querySelector("#togglePlanetsShadowCheckbox")
-    ?.addEventListener("change", (e) => {
-      const isShadow = (e.target as HTMLInputElement).checked;
-      localStorage.setItem("isPlanetsShadow", isShadow ? "1" : "");
-      planets.forEach((planet) => planet.setIsShadow(isShadow));
-    });
+  const { updateLabels } = createPlanetLabels(planets);
 
+  const rebuildStars = (count: number): void => {
+    scene.remove(starsMesh);
+    starsMesh.geometry.dispose();
+    (starsMesh.material as MeshBasicMaterial).dispose();
+    starsMesh.dispose();
+
+    const safeCount = Math.max(1, count);
+    starsMesh = createStarsInstancedMesh(safeCount);
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push(new Star(starsMesh, i));
+    }
+    if (count > 0) {
+      scene.add(starsMesh);
+    }
+  };
+
+  initSettingsPanel(planets, rebuildStars);
   initDragAndDrop(sun, planets);
 
   const clock = new Clock();
+  let scaledElapsed = 0;
 
   const animate = () => {
     requestAnimationFrame(animate);
 
     const dt = Math.min(0.05, clock.getDelta());
+    scaledElapsed += dt * settings.timeSpeed;
 
     camera.updatePosition();
 
-    sun.updateNoiseAnimation(clock.getElapsedTime());
+    sun.updateNoiseAnimation(scaledElapsed);
     sun.updatePosition(dt);
 
     planets.forEach((planet) => {
@@ -92,6 +119,8 @@ const start = async () => {
     });
 
     stars.forEach((star) => star.tryToExplode(camera.object.position));
+
+    updateLabels();
 
     renderer.render(scene, camera.object);
   };
@@ -111,6 +140,122 @@ const start = async () => {
   });
 
   requestAnimationFrame(animate);
+};
+
+const createPlanetLabels = (planets: Planet[]) => {
+  const container = document.createElement("div");
+  container.className = "planet-labels";
+  document.body.appendChild(container);
+
+  const entries = planets.map((planet) => {
+    const el = document.createElement("div");
+    el.className = "planet-label";
+    el.textContent = planet.name;
+    container.appendChild(el);
+    return { planet, el };
+  });
+
+  const projected = new Vector3();
+
+  const updateLabels = (): void => {
+    if (!container.classList.contains("planet-labels--visible")) return;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    entries.forEach(({ planet, el }) => {
+      projected.copy(planet.mesh.position).project(camera.object);
+      if (projected.z > 1 || projected.z < -1) {
+        el.style.display = "none";
+        return;
+      }
+      el.style.display = "";
+      const x = (projected.x * 0.5 + 0.5) * w;
+      const y = (-projected.y * 0.5 + 0.5) * h;
+      el.style.transform = `translate(-50%, -180%) translate(${x}px, ${y}px)`;
+    });
+  };
+
+  return { updateLabels };
+};
+
+const initSettingsPanel = (
+  planets: Planet[],
+  rebuildStars: (count: number) => void,
+): void => {
+  document
+    .querySelector("#togglePlanetsShadowCheckbox")
+    ?.addEventListener("change", (e) => {
+      const isShadow = (e.target as HTMLInputElement).checked;
+      localStorage.setItem("isPlanetsShadow", isShadow ? "1" : "");
+      planets.forEach((planet) => planet.setIsShadow(isShadow));
+    });
+
+  document
+    .querySelector("#toggleOrbitsCheckbox")
+    ?.addEventListener("change", (e) => {
+      const show = (e.target as HTMLInputElement).checked;
+      planets.forEach((planet) => (planet.orbitLine.visible = show));
+    });
+
+  const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
+  document
+    .querySelector("#toggleLabelsCheckbox")
+    ?.addEventListener("change", (e) => {
+      const show = (e.target as HTMLInputElement).checked;
+      labelsContainer?.classList.toggle("planet-labels--visible", show);
+    });
+
+  document
+    .querySelector("#toggleTrailsCheckbox")
+    ?.addEventListener("change", (e) => {
+      const show = (e.target as HTMLInputElement).checked;
+      planets.forEach((planet) => (planet.trail.visible = show));
+    });
+
+  document
+    .querySelector("#toggleInclinationsCheckbox")
+    ?.addEventListener("change", (e) => {
+      settings.realInclinations = (e.target as HTMLInputElement).checked;
+      planets.forEach((planet) => planet.resetTrail());
+    });
+
+  const timeSpeedSlider = document.querySelector<HTMLInputElement>(
+    "#timeSpeedSlider",
+  );
+  const timeSpeedOutput = document.querySelector<HTMLOutputElement>(
+    "#timeSpeedOutput",
+  );
+  timeSpeedSlider?.addEventListener("input", () => {
+    const value = parseFloat(timeSpeedSlider.value);
+    settings.timeSpeed = value;
+    if (timeSpeedOutput) {
+      timeSpeedOutput.textContent = `${value.toFixed(1)}x`;
+    }
+  });
+
+  const starsCountSlider = document.querySelector<HTMLInputElement>(
+    "#starsCountSlider",
+  );
+  const starsCountOutput = document.querySelector<HTMLOutputElement>(
+    "#starsCountOutput",
+  );
+  starsCountSlider?.addEventListener("input", () => {
+    if (starsCountOutput) {
+      starsCountOutput.textContent = starsCountSlider.value;
+    }
+  });
+  starsCountSlider?.addEventListener("change", () => {
+    rebuildStars(parseInt(starsCountSlider.value, 10));
+  });
+
+  const qualitySelect = document.querySelector<HTMLSelectElement>(
+    "#qualitySelect",
+  );
+  qualitySelect?.addEventListener("change", () => {
+    const preset = QUALITY_PRESETS[qualitySelect.value as Quality];
+    renderer.setPixelRatio(preset.pixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 };
 
 const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
