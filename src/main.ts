@@ -15,6 +15,7 @@ import { EarthClouds } from "./objects/earthClouds";
 import { createEarthAtmosphere } from "./objects/earthAtmosphere";
 import { createAsteroidBelt } from "./objects/asteroidBelt";
 import { createStarfield } from "./objects/starfield";
+import { Comet, COMET_CONFIGS } from "./objects/comet";
 import type { PostProcessing } from "./postProcessing";
 import type { DebugPanel } from "./debugPanel";
 import { TourGuide } from "./tourGuide";
@@ -301,6 +302,13 @@ const start = async () => {
   const saturnRings = saturn ? createSaturnRings(saturn.radius) : null;
   if (saturnRings) scene.add(saturnRings);
 
+  const comets = COMET_CONFIGS.map((cfg) => new Comet(cfg));
+  comets.forEach((c) => {
+    scene.add(c.mesh);
+    scene.add(c.tail);
+    scene.add(c.orbitLine);
+  });
+
   const earth = planets.find((p) => p.name === "earth") ?? null;
   const moonTexture = textures.get("moon");
   const moon =
@@ -368,8 +376,14 @@ const start = async () => {
     ? new Minimap(minimapCanvas, sun, planets, camera)
     : null;
 
-  initSettingsPanel(planets, rebuildStars, postProcessing, setDebugEnabled);
-  initDragAndDrop(sun, planets);
+  initSettingsPanel(
+    planets,
+    comets,
+    rebuildStars,
+    postProcessing,
+    setDebugEnabled,
+  );
+  initDragAndDrop(sun, planets, comets);
   initSidebarDrawer();
 
   tourGuide = new TourGuide(
@@ -381,7 +395,12 @@ const start = async () => {
     },
     sun,
     planets,
+    comets,
   );
+  const cometsCheckbox = document.querySelector<HTMLInputElement>(
+    "#toggleCometsCheckbox",
+  );
+  tourGuide.setCometsIncluded(cometsCheckbox?.checked ?? true);
   initTourControls();
 
   const appEl = document.getElementById("app");
@@ -426,6 +445,10 @@ const start = async () => {
     if (saturn && saturnRings) {
       saturnRings.position.copy(saturn.mesh.position);
     }
+
+    comets.forEach((c) =>
+      c.updatePosition(dt, sun.model.position, settings.timeSpeed),
+    );
 
     if (moon) {
       moon.updatePosition();
@@ -579,6 +602,7 @@ const bindSelect = <T extends string>(
 
 const initSettingsPanel = (
   planets: Planet[],
+  comets: Comet[],
   rebuildStars: (count: number) => void,
   postProcessing: PostProcessing,
   setDebugEnabled: (enabled: boolean) => void,
@@ -590,8 +614,26 @@ const initSettingsPanel = (
     planets.forEach((planet) => planet.setIsShadow(v));
   });
 
+  let orbitsShown = true;
+  let cometsShown = true;
+  const applyCometVisibility = (): void => {
+    comets.forEach((c) => {
+      c.mesh.visible = cometsShown;
+      c.tail.visible = cometsShown;
+      c.orbitLine.visible = cometsShown && orbitsShown;
+    });
+  };
+
   bindCheckbox("toggleOrbitsCheckbox", "or", true, (v) => {
+    orbitsShown = v;
     planets.forEach((planet) => (planet.orbitLine.visible = v));
+    applyCometVisibility();
+  });
+
+  bindCheckbox("toggleCometsCheckbox", "comets", true, (v) => {
+    cometsShown = v;
+    applyCometVisibility();
+    tourGuide?.setCometsIncluded(v);
   });
 
   bindCheckbox("toggleLabelsCheckbox", "la", true, (v) => {
@@ -752,7 +794,11 @@ const initTourControls = (): void => {
   });
 };
 
-const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
+const initDragAndDrop = (
+  sun: Sun,
+  planets: Planet[],
+  comets: Comet[],
+): void => {
   const canvas = renderer.domElement;
   const raycaster = new Raycaster();
   const pointer = new Vector2();
@@ -761,7 +807,7 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
   const dragIntersection = new Vector3();
   const dragOffset = new Vector3();
 
-  const draggables: Draggable[] = [sun, ...planets];
+  const draggables: Draggable[] = [sun, ...planets, ...comets];
   const draggableMeshes: Mesh[] = draggables.map(
     (d) => d.mesh as Mesh,
   );

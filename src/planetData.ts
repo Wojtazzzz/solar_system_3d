@@ -1,7 +1,7 @@
 export type BodyFact = {
   id: string;
   displayName: string;
-  type: "star" | "planet";
+  type: "star" | "planet" | "comet";
   diameter: string;
   mass: string;
   orbitalPeriod: string;
@@ -138,6 +138,132 @@ export const bodyFacts: Record<string, BodyFact> = {
     distanceFromSun: "4.5 billion km",
     funFact:
       "Winds reach 2,100 km/h — the fastest in the Solar System. Discovered mathematically, from Uranus's orbital perturbations, before anyone had seen it.",
+  },
+  halley: {
+    id: "halley",
+    displayName: "1P/Halley",
+    type: "comet",
+    diameter: "~11 km (nucleus)",
+    mass: "2.2 × 10¹⁴ kg",
+    orbitalPeriod: "~76 years",
+    dayLength: "2.2 days (rotation)",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.59 – 35.1 AU (perihelion – aphelion)",
+    funFact:
+      "The most famous short-period comet, visible to the naked eye from Earth every 76 years. Last seen in 1986, next predicted return in 2061.",
+  },
+  haleBopp: {
+    id: "haleBopp",
+    displayName: "C/1995 O1 (Hale-Bopp)",
+    type: "comet",
+    diameter: "~60 km (nucleus)",
+    mass: "~1.3 × 10¹⁶ kg",
+    orbitalPeriod: "~2,533 years",
+    dayLength: "11.4 hours (rotation)",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.91 – 370.8 AU",
+    funFact:
+      "One of the brightest comets ever observed, visible to the naked eye for a record 18 months (1996–97). Unusually large nucleus for a long-period comet.",
+  },
+  neowise: {
+    id: "neowise",
+    displayName: "C/2020 F3 (NEOWISE)",
+    type: "comet",
+    diameter: "~5 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "~6,800 years",
+    dayLength: "7.6 hours (rotation)",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.29 – 715 AU",
+    funFact:
+      "Discovered in March 2020 by the NEOWISE space telescope. The first brightly visible comet from the Northern Hemisphere since Hale-Bopp, with a striking split tail.",
+  },
+  encke: {
+    id: "encke",
+    displayName: "2P/Encke",
+    type: "comet",
+    diameter: "~4.8 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "3.3 years",
+    dayLength: "11 hours (rotation)",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.34 – 4.11 AU",
+    funFact:
+      "The comet with the shortest known orbital period — it completes a full loop faster than any other named comet. Origin of the Taurid meteor shower.",
+  },
+  shoemakerLevy9: {
+    id: "shoemakerLevy9",
+    displayName: "D/1993 F2 (Shoemaker–Levy 9)",
+    type: "comet",
+    diameter: "~2 km (fragmented)",
+    mass: "—",
+    orbitalPeriod: "captured by Jupiter (~2 years)",
+    dayLength: "—",
+    moons: "—",
+    temperature: "—",
+    distanceFromSun: "orbited Jupiter",
+    funFact:
+      "Broken into 21 pieces by Jupiter's tidal forces, which then crashed into Jupiter in July 1994 — the first direct observation of a Solar System collision.",
+  },
+  swiftTuttle: {
+    id: "swiftTuttle",
+    displayName: "109P/Swift–Tuttle",
+    type: "comet",
+    diameter: "~26 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "133 years",
+    dayLength: "—",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.96 – 51 AU",
+    funFact:
+      "Parent body of the annual Perseid meteor shower in August. One of the largest known short-period comet nuclei — if it ever hit Earth it would be catastrophic.",
+  },
+  tempelTuttle: {
+    id: "tempelTuttle",
+    displayName: "55P/Tempel–Tuttle",
+    type: "comet",
+    diameter: "~3.6 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "33 years",
+    dayLength: "—",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.98 – 19.7 AU",
+    funFact:
+      "Produces the Leonid meteor shower, which sometimes erupts into dramatic storms with thousands of meteors per hour when the comet is near perihelion.",
+  },
+  lovejoy: {
+    id: "lovejoy",
+    displayName: "C/2014 Q2 (Lovejoy)",
+    type: "comet",
+    diameter: "~1 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "~14,000 years",
+    dayLength: "—",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "1.29 – 1,100 AU",
+    funFact:
+      "Famous for its bright green coma caused by diatomic carbon molecules fluorescing under sunlight. Found to be releasing ethyl alcohol — a 'boozy' comet.",
+  },
+  ison: {
+    id: "ison",
+    displayName: "C/2012 S1 (ISON)",
+    type: "comet",
+    diameter: "~0.6 km (nucleus)",
+    mass: "—",
+    orbitalPeriod: "one-time passage",
+    dayLength: "—",
+    moons: "—",
+    temperature: "varies",
+    distanceFromSun: "0.012 AU at perihelion",
+    funFact:
+      "Hyped as the 'comet of the century' before disintegrating during its extremely close Sun passage on 28 November 2013.",
   },
 };
 

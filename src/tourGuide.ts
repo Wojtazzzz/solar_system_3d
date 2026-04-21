@@ -2,6 +2,7 @@ import type { Object3D } from "three";
 import type { Camera } from "./objects/camera";
 import type { Sun } from "./objects/sun";
 import type { Planet } from "./objects/planet";
+import type { Comet } from "./objects/comet";
 import { bodyFacts } from "./planetData";
 
 type TourBody = {
@@ -14,27 +15,34 @@ type TourBody = {
 const SUN_FOCUS_DISTANCE = 8;
 const PLANET_DISTANCE_FACTOR = 5;
 const PLANET_MIN_DISTANCE = 1.5;
+const COMET_FOCUS_DISTANCE = 4;
 
 export class TourGuide {
-  private readonly bodies: readonly TourBody[];
+  private bodies: TourBody[] = [];
   private index = -1;
   private active = false;
+  private includeComets = true;
 
   constructor(
     private readonly camera: Camera,
     private readonly onShow: (id: string) => void,
     private readonly onStateChange: () => void,
-    sun: Sun,
-    planets: Planet[],
+    private readonly sun: Sun,
+    private readonly planets: Planet[],
+    private readonly comets: Comet[] = [],
   ) {
-    this.bodies = [
+    this.rebuildBodies();
+  }
+
+  private rebuildBodies(): void {
+    const result: TourBody[] = [
       {
         id: "sun",
         displayName: bodyFacts.sun?.displayName ?? "sun",
-        mesh: sun.model,
+        mesh: this.sun.model,
         focusDistance: SUN_FOCUS_DISTANCE,
       },
-      ...planets.map((p) => ({
+      ...this.planets.map((p) => ({
         id: p.name,
         displayName: bodyFacts[p.name]?.displayName ?? p.name,
         mesh: p.mesh,
@@ -44,6 +52,34 @@ export class TourGuide {
         ),
       })),
     ];
+    if (this.includeComets) {
+      for (const c of this.comets) {
+        result.push({
+          id: c.name,
+          displayName: bodyFacts[c.name]?.displayName ?? c.name,
+          mesh: c.mesh,
+          focusDistance: COMET_FOCUS_DISTANCE,
+        });
+      }
+    }
+    this.bodies = result;
+  }
+
+  setCometsIncluded(include: boolean): void {
+    if (this.includeComets === include) return;
+    this.includeComets = include;
+    const currentId = this.bodies[this.index]?.id;
+    this.rebuildBodies();
+    if (!this.active) return;
+    const newIndex = currentId
+      ? this.bodies.findIndex((b) => b.id === currentId)
+      : -1;
+    if (newIndex >= 0) {
+      this.index = newIndex;
+      this.onStateChange();
+    } else {
+      this.stop();
+    }
   }
 
   isActive(): boolean {
