@@ -416,6 +416,30 @@ const start = async () => {
 
   const comparePanel = initComparePanel(textures);
 
+  const applyRealism = (value: number): void => {
+    const clamped = Math.max(0, Math.min(1, value));
+    settings.realism = clamped;
+
+    sun.applyRealismScale(clamped);
+    for (const planet of planets) {
+      planet.applyRealismScale(clamped);
+      planet.resetTrail();
+    }
+    if (saturn && saturnRings) {
+      saturnRings.scale.setScalar(saturn.getRealismScale(clamped));
+    }
+
+    const newMaxRadius =
+      cameraOptions.maxRadius +
+      (cameraOptions.maxRadiusRealistic - cameraOptions.maxRadius) * clamped;
+    camera.setMaxRadius(newMaxRadius);
+    slider.max = String(newMaxRadius);
+    if (camera.getRadius() > newMaxRadius) {
+      camera.setRadius(newMaxRadius);
+    }
+    slider.value = String(camera.getRadius());
+  };
+
   initSettingsPanel(
     planets,
     comets,
@@ -423,6 +447,7 @@ const start = async () => {
     postProcessing,
     setDebugEnabled,
     comparePanel,
+    applyRealism,
   );
   initDragAndDrop(sun, planets, comets);
   initSidebarDrawer();
@@ -749,6 +774,7 @@ const initSettingsPanel = (
   postProcessing: PostProcessing,
   setDebugEnabled: (enabled: boolean) => void,
   comparePanel: ComparePanel | null,
+  applyRealism: (value: number) => void,
 ): void => {
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
 
@@ -848,6 +874,7 @@ const initSettingsPanel = (
     const rangeDefaults: Array<[string, string]> = [
       ["timeSpeedSlider", "1"],
       ["starsCountSlider", "2000"],
+      ["realismSlider", "0"],
     ];
     for (const [id, value] of rangeDefaults) {
       const el = document.getElementById(id) as HTMLInputElement | null;
@@ -908,6 +935,15 @@ const initSettingsPanel = (
     null,
     null,
     (v) => rebuildStars(Math.round(v)),
+  );
+
+  bindRange(
+    "realismSlider",
+    "realismOutput",
+    "real",
+    0,
+    (v) => `${Math.round(v * 100)}%`,
+    (v) => applyRealism(v),
   );
 
   bindSelect<Quality>(

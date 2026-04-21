@@ -44,6 +44,8 @@ export class Planet {
     public readonly inclination: number,
     private readonly texture: Texture,
     private readonly normalMap: Texture | null = null,
+    public readonly realisticRadius: number = radius,
+    public readonly realisticOrbitalRadius: number = orbitalRadius,
   ) {
     this.mesh = new Mesh(
       new SphereGeometry(radius, 32, 32),
@@ -52,9 +54,10 @@ export class Planet {
 
     this.theta = Math.random() * 10 - 10;
 
+    const trailOrbit = Math.max(orbitalRadius, realisticOrbitalRadius);
     this.maxTrailLength = Math.max(
       2,
-      Math.ceil(orbitalRadius * planet.trailLength),
+      Math.ceil(trailOrbit * planet.trailLength),
     );
     this.trailPositions = new Float32Array(this.maxTrailLength * 3);
 
@@ -96,13 +99,19 @@ export class Planet {
     this.orbitLine.visible = false;
   }
 
+  getCurrentOrbitalRadius(): number {
+    const t = Math.max(0, Math.min(1, settings.realism));
+    return this.orbitalRadius + (this.realisticOrbitalRadius - this.orbitalRadius) * t;
+  }
+
   getHomePosition(target: Vector3 = this.homeCache): Vector3 {
     const useInclination =
       settings.realInclinations || USE_REAL_PLANET_INCLINATION;
+    const r = this.getCurrentOrbitalRadius();
     target.set(
-      this.orbitalRadius * planet.orbitalRadiusScale * Math.cos(this.theta),
-      useInclination ? this.orbitalRadius * Math.sin(this.inclination) : 0,
-      this.orbitalRadius * planet.orbitalRadiusScale * Math.sin(this.theta),
+      r * planet.orbitalRadiusScale * Math.cos(this.theta),
+      useInclination ? r * Math.sin(this.inclination) : 0,
+      r * planet.orbitalRadiusScale * Math.sin(this.theta),
     );
     return target;
   }
@@ -124,9 +133,11 @@ export class Planet {
 
     const useInclination =
       settings.realInclinations || USE_REAL_PLANET_INCLINATION;
+    const currentOrbit = this.getCurrentOrbitalRadius();
     this.orbitLine.position.y = useInclination
-      ? this.orbitalRadius * Math.sin(this.inclination)
+      ? currentOrbit * Math.sin(this.inclination)
       : 0;
+    this.orbitLine.scale.setScalar(currentOrbit / this.orbitalRadius);
 
     this.getHomePosition(this.homeCache);
     const amplitude = Math.max(DANCE_MIN_AMPLITUDE, this.radius * DANCE_RADIUS_SCALE);
@@ -152,6 +163,15 @@ export class Planet {
       this.mesh.material.dispose();
       this.mesh.material = new MeshBasicMaterial({ map: this.texture });
     }
+  }
+
+  getRealismScale(realism: number): number {
+    const t = Math.max(0, Math.min(1, realism));
+    return 1 + (this.realisticRadius / this.radius - 1) * t;
+  }
+
+  applyRealismScale(realism: number): void {
+    this.mesh.scale.setScalar(this.getRealismScale(realism));
   }
 
   resetTrail(): void {

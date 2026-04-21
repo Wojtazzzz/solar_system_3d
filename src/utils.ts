@@ -120,6 +120,8 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>): Planet
       cfg.inclination,
       getTexture(cfg.name),
       normalMap,
+      baseRadius,
+      cfg.realisticOrbitalRadius,
     );
   });
 };

@@ -13,6 +13,7 @@ export class Camera {
   private focusTarget: Object3D | null = null;
   private focusDistance = 0;
   private focusTheta = 0;
+  private maxRadius = camera.maxRadius;
 
   private readonly desiredPos = new Vector3();
   private readonly targetPos = new Vector3();
@@ -39,10 +40,19 @@ export class Camera {
     return this.radius;
   }
 
+  getMaxRadius(): number {
+    return this.maxRadius;
+  }
+
+  setMaxRadius(max: number): void {
+    this.maxRadius = Math.max(camera.minRadius, max);
+    if (this.radius > this.maxRadius) this.radius = this.maxRadius;
+  }
+
   setRadius(radius: number) {
     this.radius = Math.max(
       camera.minRadius,
-      Math.min(camera.maxRadius, radius),
+      Math.min(this.maxRadius, radius),
     );
   }
 

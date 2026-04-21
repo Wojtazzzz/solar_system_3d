@@ -14,7 +14,9 @@ const PLANET_COLORS: Record<string, string> = {
 };
 
 const ORBITAL_RADIUS_SCALE = 1.2;
-const WORLD_EXTENT = 75;
+const EXTENT_MARGIN = 1.25;
+const MIN_WORLD_EXTENT = 75;
+const EDGE_PADDING = 4;
 
 export class Minimap {
   private readonly ctx: CanvasRenderingContext2D;
@@ -41,11 +43,21 @@ export class Minimap {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
+  private computeExtent(): number {
+    let maxOrbit = 0;
+    for (const planet of this.planets) {
+      const r = planet.getCurrentOrbitalRadius() * ORBITAL_RADIUS_SCALE;
+      if (r > maxOrbit) maxOrbit = r;
+    }
+    return Math.max(MIN_WORLD_EXTENT, maxOrbit * EXTENT_MARGIN);
+  }
+
   draw(): void {
     const ctx = this.ctx;
     const s = this.size;
     if (s <= 0) return;
-    const scale = (s * 0.5 - 4) / WORLD_EXTENT;
+    const maxRadiusPx = s * 0.5 - EDGE_PADDING;
+    const scale = maxRadiusPx / this.computeExtent();
     const cx = s / 2;
     const cy = s / 2;
 
@@ -54,7 +66,7 @@ export class Minimap {
     ctx.strokeStyle = "rgba(255,255,255,0.14)";
     ctx.lineWidth = 1;
     for (const planet of this.planets) {
-      const r = planet.orbitalRadius * ORBITAL_RADIUS_SCALE * scale;
+      const r = planet.getCurrentOrbitalRadius() * ORBITAL_RADIUS_SCALE * scale;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
@@ -76,8 +88,18 @@ export class Minimap {
     }
 
     const camPos = this.camera.object.position;
-    const camX = cx + camPos.x * scale;
-    const camY = cy + camPos.z * scale;
+    let camX = cx + camPos.x * scale;
+    let camY = cy + camPos.z * scale;
+    const camDx = camX - cx;
+    const camDy = camY - cy;
+    const camDist = Math.hypot(camDx, camDy);
+    const clamped = camDist > maxRadiusPx;
+    if (clamped && camDist > 0) {
+      const k = maxRadiusPx / camDist;
+      camX = cx + camDx * k;
+      camY = cy + camDy * k;
+    }
+
     const dxToCenter = cx - camX;
     const dyToCenter = cy - camY;
     const len = Math.hypot(dxToCenter, dyToCenter);
@@ -95,7 +117,7 @@ export class Minimap {
       const rightX = camX - fx * 2 - nx * baseLen;
       const rightY = camY - fy * 2 - ny * baseLen;
 
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = clamped ? "#ffd560" : "#ffffff";
       ctx.beginPath();
       ctx.moveTo(tipX, tipY);
       ctx.lineTo(leftX, leftY);

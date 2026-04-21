@@ -1,5 +1,5 @@
 import { Mesh, PointLight, ShaderMaterial, SphereGeometry, Vector3 } from "three";
-import { sun } from "../consts";
+import { sun, sunRealismScale } from "../consts";
 import { BodyPhysics } from "./bodyPhysics";
 
 const DANCE_RADIUS_SCALE = 0.4;
@@ -58,6 +58,12 @@ export class Sun {
     this.physics.update(dt, this.homePosition, sun.radius * DANCE_RADIUS_SCALE);
     this.physics.writeTo(this.model.position);
     this.light.position.copy(this.model.position);
+  }
+
+  applyRealismScale(realism: number): void {
+    const t = Math.max(0, Math.min(1, realism));
+    const scale = 1 + (sunRealismScale - 1) * t;
+    this.model.scale.setScalar(scale);
   }
 
   updateNoiseAnimation(time: number) {
