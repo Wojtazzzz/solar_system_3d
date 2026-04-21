@@ -11,6 +11,8 @@ import { Planet } from "./objects/planet";
 import { createSaturnRings } from "./objects/saturnRings";
 import { SunFlares } from "./objects/sunFlares";
 import { Moon } from "./objects/moon";
+import { EarthClouds } from "./objects/earthClouds";
+import { createEarthAtmosphere } from "./objects/earthAtmosphere";
 import { createPostProcessing, type PostProcessing } from "./postProcessing";
 import { settings } from "./settings";
 import {
@@ -258,6 +260,11 @@ const start = async () => {
       : null;
   if (moon) scene.add(moon.mesh);
 
+  const earthClouds = earth ? new EarthClouds(earth.radius) : null;
+  const earthAtmosphere = earth ? createEarthAtmosphere(earth.radius) : null;
+  if (earth && earthClouds) earth.mesh.add(earthClouds.mesh);
+  if (earth && earthAtmosphere) earth.mesh.add(earthAtmosphere);
+
   const postProcessing = createPostProcessing(renderer, scene, camera.object);
 
   const { updateLabels } = createPlanetLabels(planets);
@@ -321,6 +328,10 @@ const start = async () => {
     if (moon) {
       moon.updatePosition();
       moon.updateRotation();
+    }
+
+    if (earthClouds) {
+      earthClouds.update(scaledElapsed, settings.timeSpeed);
     }
 
     stars.forEach((star) => star.tryToExplode(camera.object.position));
