@@ -639,33 +639,111 @@ details.config-panel[open] summary {
   font-variant-numeric: tabular-nums;
 }
 
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--main-text-color);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 2px solid var(--main-text-color);
+  outline-offset: 2px;
+}
+
+.sidebar-toggle__icon {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  transition: background 0.2s ease;
+}
+
+.sidebar-toggle__icon::before,
+.sidebar-toggle__icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: currentColor;
+  transition: transform 0.2s ease, top 0.2s ease;
+}
+
+.sidebar-toggle__icon::before {
+  top: -6px;
+}
+
+.sidebar-toggle__icon::after {
+  top: 6px;
+}
+
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__icon {
+  background: transparent;
+}
+
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__icon::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 767px) {
-  body {
-    flex-direction: column;
-  }
-
   .sidebar {
-    flex: 0 0 auto;
-    width: 100%;
-    height: auto;
-    max-height: 50vh;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 14px var(--padding);
-    gap: 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    max-height: none;
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 25;
+    border-right: 1px solid var(--border-subtle);
   }
 
-  .sidebar__title {
-    font-size: 15px;
-    letter-spacing: 2px;
+  .sidebar--open {
+    transform: translateX(0);
   }
 
-  .sidebar__description {
-    font-size: 10px;
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
   }
 
-  .sidebar__minimap {
-    display: none;
+  .sidebar-backdrop--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-toggle {
+    display: flex;
   }
 
   .info-panel {

@@ -31,7 +31,20 @@
       </p>
     </div>
 
-    <aside class="sidebar" aria-label="Navigation and settings">
+    <button
+      class="sidebar-toggle"
+      id="sidebarToggle"
+      type="button"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="sidebar"
+    >
+      <span class="sidebar-toggle__icon" aria-hidden="true"></span>
+    </button>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Navigation and settings">
       <header class="sidebar__header">
         <h1 class="sidebar__title">Solar System 3D</h1>
         <p class="sidebar__description">

@@ -370,6 +370,7 @@ const start = async () => {
 
   initSettingsPanel(planets, rebuildStars, postProcessing, setDebugEnabled);
   initDragAndDrop(sun, planets);
+  initSidebarDrawer();
 
   tourGuide = new TourGuide(
     camera,
@@ -665,6 +666,32 @@ const initSettingsPanel = (
   );
 };
 
+const isSidebarOpen = (): boolean =>
+  document.getElementById("sidebar")?.classList.contains("sidebar--open") ??
+  false;
+
+const setSidebarOpen = (open: boolean): void => {
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebarBackdrop");
+  const toggle = document.getElementById("sidebarToggle");
+  sidebar?.classList.toggle("sidebar--open", open);
+  backdrop?.classList.toggle("sidebar-backdrop--visible", open);
+  toggle?.setAttribute("aria-expanded", open ? "true" : "false");
+};
+
+const initSidebarDrawer = (): void => {
+  const toggle = document.getElementById("sidebarToggle");
+  const backdrop = document.getElementById("sidebarBackdrop");
+
+  toggle?.addEventListener("click", () => {
+    setSidebarOpen(!isSidebarOpen());
+  });
+
+  backdrop?.addEventListener("click", () => {
+    setSidebarOpen(false);
+  });
+};
+
 const initTourControls = (): void => {
   document.getElementById("tourToggle")?.addEventListener("click", () => {
     if (!tourGuide) return;
@@ -692,6 +719,12 @@ const initTourControls = (): void => {
         target.tagName === "TEXTAREA" ||
         target.tagName === "SELECT")
     ) {
+      return;
+    }
+
+    if (event.key === "Escape" && isSidebarOpen()) {
+      event.preventDefault();
+      setSidebarOpen(false);
       return;
     }
 
