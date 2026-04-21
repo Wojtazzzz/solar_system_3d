@@ -24,9 +24,12 @@ export class Camera {
     private radius = camera.initialRadius,
     private yFactor = camera.initialY / camera.initialRadius,
   ) {
+    const app = document.getElementById("app");
+    const width = app?.clientWidth ?? window.innerWidth;
+    const height = app?.clientHeight ?? window.innerHeight;
     this.object = new PerspectiveCamera(
       camera.fov,
-      window.innerWidth / window.innerHeight,
+      width / height,
       0.1,
       camera.far,
     );

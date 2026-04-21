@@ -7,8 +7,12 @@
     <meta name="theme-color" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="description"
+      content="Interactive 3D solar system orrery. Drag planets to throw them, take a guided tour, play a quiz, and explore planetary facts. Built with Three.js. Installable as a PWA."
+    />
     <link rel="apple-touch-icon" href="/favicon.svg" />
-    <title>Solar System 3D</title>
+    <title>Solar System 3D — interactive planetary exploration</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -27,22 +31,17 @@
       </p>
     </div>
 
-    <main id="app">
-      <h1 class="sr-only">Solar System 3D</h1>
-
-      <div class="zoom-label">
-        <span class="scroll-text">Scroll to zoom</span>
-        <span class="slide-text">Slide to zoom</span>
-        <span class="click-text">Click planet for info</span>
-        <span class="tap-text">Tap planet for info</span>
-        <button class="quiz-toggle" id="quizToggle" type="button">Start quiz</button>
-        <button class="quiz-toggle tour-toggle" id="tourToggle" type="button">Start tour</button>
-      </div>
+    <aside class="sidebar" aria-label="Navigation and settings">
+      <header class="sidebar__header">
+        <h1 class="sidebar__title">Solar System 3D</h1>
+        <p class="sidebar__description">
+          Interactive 3D orrery. Drag planets to throw them, take a guided tour,
+          try the quiz, or explore real planetary facts. Built with Three.js.
+        </p>
+      </header>
 
       <details class="config-panel">
-        <summary>
-          Settings
-        </summary>
+        <summary>Settings</summary>
         <div class="config-controls">
           <label class="config-row">
             <span>planets shadow</span>
@@ -91,12 +90,29 @@
         </div>
       </details>
 
-      <div class="github-label">
+      <section class="sidebar__minimap" aria-labelledby="minimap-heading">
+        <h2 class="sidebar__section-title" id="minimap-heading">Minimap</h2>
+        <canvas class="minimap" id="minimap" aria-label="Solar system top-down minimap"></canvas>
+      </section>
+
+      <footer class="sidebar__footer">
         <a
+          class="github-link"
           href="https://github.com/Wojtazzzz/solar_system_3d"
-          class="label-text"
-          >Github</a
-        >
+          target="_blank"
+          rel="noopener noreferrer"
+        >View on GitHub ↗</a>
+      </footer>
+    </aside>
+
+    <main id="app" class="scene">
+      <div class="zoom-label">
+        <span class="scroll-text">Scroll to zoom</span>
+        <span class="slide-text">Slide to zoom</span>
+        <span class="click-text">Click planet for info</span>
+        <span class="tap-text">Tap planet for info</span>
+        <button class="quiz-toggle" id="quizToggle" type="button">Start quiz</button>
+        <button class="quiz-toggle tour-toggle" id="tourToggle" type="button">Start tour</button>
       </div>
 
       <aside class="info-panel" id="infoPanel" aria-hidden="true">
@@ -113,8 +129,6 @@
       </aside>
 
       <div class="quiz-banner" id="quizBanner" aria-hidden="true"></div>
-
-      <canvas class="minimap" id="minimap" aria-label="Solar system minimap"></canvas>
 
       <div class="slider-container">
         <input

@@ -383,9 +383,14 @@ const start = async () => {
   );
   initTourControls();
 
+  const appEl = document.getElementById("app");
+  const getAppSize = (): [number, number] => [
+    appEl?.clientWidth ?? window.innerWidth,
+    appEl?.clientHeight ?? window.innerHeight,
+  ];
+
   window.addEventListener("resize", () => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const [w, h] = getAppSize();
     camera.object.aspect = w / h;
     camera.object.updateProjectionMatrix();
     renderer.setSize(w, h);
@@ -461,7 +466,8 @@ const start = async () => {
 const createPlanetLabels = (planets: Planet[]) => {
   const container = document.createElement("div");
   container.className = "planet-labels";
-  document.body.appendChild(container);
+  const appRoot = document.getElementById("app") ?? document.body;
+  appRoot.appendChild(container);
 
   const entries = planets.map((planet) => {
     const el = document.createElement("div");
@@ -475,8 +481,9 @@ const createPlanetLabels = (planets: Planet[]) => {
 
   const updateLabels = (): void => {
     if (!container.classList.contains("planet-labels--visible")) return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const canvas = renderer.domElement;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
 
     entries.forEach(({ planet, el }) => {
       projected.copy(planet.mesh.position).project(camera.object);
@@ -648,9 +655,12 @@ const initSettingsPanel = (
     "medium",
     (q) => {
       const preset = QUALITY_PRESETS[q];
+      const app = document.getElementById("app");
+      const w = app?.clientWidth ?? window.innerWidth;
+      const h = app?.clientHeight ?? window.innerHeight;
       renderer.setPixelRatio(preset.pixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      postProcessing.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(w, h);
+      postProcessing.setSize(w, h);
     },
   );
 };

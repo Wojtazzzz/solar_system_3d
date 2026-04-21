@@ -31,12 +31,15 @@ export const initCamera = () => {
 
 export const initRenderer = () => {
   if (!window.renderer) {
+    const app = document.getElementById("app");
+    const width = app?.clientWidth ?? window.innerWidth;
+    const height = app?.clientHeight ?? window.innerHeight;
+
     window.renderer = new WebGLRenderer();
-
     window.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    window.renderer.setSize(window.innerWidth, window.innerHeight);
+    window.renderer.setSize(width, height);
 
-    document.getElementById("app")?.appendChild(window.renderer.domElement);
+    app?.appendChild(window.renderer.domElement);
   }
 
   return window.renderer;
