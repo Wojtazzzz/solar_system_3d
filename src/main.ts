@@ -31,6 +31,15 @@ import {
 import { bindCheckbox, bindRange, bindSelect } from "./controlBindings";
 import { ComparePanel } from "./comparePanel";
 import {
+  applyI18nToDOM,
+  isLocale,
+  onLocaleChange,
+  setLocale,
+  t,
+} from "./i18n";
+import type { Locale } from "./i18n/types";
+import { LOCALES } from "./i18n/types";
+import {
   stars as starsOptions,
   sun as sunOptions,
   camera as cameraOptions,
@@ -83,10 +92,13 @@ const onBodyClick = (name: string): void => {
 
 let currentBodyId: string | null = null;
 
-const COMPARE_GROUPS: ReadonlyArray<{ label: string; type: BodyFact["type"] }> = [
-  { label: "Star", type: "star" },
-  { label: "Planets", type: "planet" },
-  { label: "Comets", type: "comet" },
+const COMPARE_GROUPS: ReadonlyArray<{
+  labelKey: "star" | "planets" | "comets";
+  type: BodyFact["type"];
+}> = [
+  { labelKey: "star", type: "star" },
+  { labelKey: "planets", type: "planet" },
+  { labelKey: "comets", type: "comet" },
 ];
 
 const populateCompareSelect = (excludeId: string): void => {
@@ -99,7 +111,7 @@ const populateCompareSelect = (excludeId: string): void => {
 
   const none = document.createElement("option");
   none.value = "";
-  none.textContent = "None";
+  none.textContent = t("none");
   select.appendChild(none);
 
   for (const group of COMPARE_GROUPS) {
@@ -108,7 +120,7 @@ const populateCompareSelect = (excludeId: string): void => {
     );
     if (items.length === 0) continue;
     const optgroup = document.createElement("optgroup");
-    optgroup.label = group.label;
+    optgroup.label = t(group.labelKey);
     for (const fact of items) {
       const opt = document.createElement("option");
       opt.value = fact.id;
@@ -163,7 +175,7 @@ const syncTourUI = (): void => {
   }
 
   if (toggleBtn) {
-    toggleBtn.textContent = active ? "Stop tour" : "Start tour";
+    toggleBtn.textContent = active ? t("stopTour") : t("startTour");
     toggleBtn.classList.toggle("quiz-toggle--active", active);
   }
 
@@ -177,13 +189,13 @@ const syncTourUI = (): void => {
 const renderFactsTable = (el: HTMLElement, fact: BodyFact): void => {
   el.replaceChildren();
   const rows: Array<[string, string]> = [
-    ["Diameter", fact.diameter],
-    ["Mass", fact.mass],
-    ["Orbital period", fact.orbitalPeriod],
-    ["Day length", fact.dayLength],
-    ["Moons", fact.moons],
-    ["Temperature", fact.temperature],
-    ["Distance from Sun", fact.distanceFromSun],
+    [t("diameter"), fact.diameter],
+    [t("mass"), fact.mass],
+    [t("orbitalPeriod"), fact.orbitalPeriod],
+    [t("dayLength"), fact.dayLength],
+    [t("moons"), fact.moons],
+    [t("temperature"), fact.temperature],
+    [t("distanceFromSun"), fact.distanceFromSun],
   ];
   for (const [label, value] of rows) {
     const dt = document.createElement("dt");
@@ -240,7 +252,7 @@ const handleQuizAnswer = (name: string): void => {
       if (quizActive) nextQuizQuestion();
     }, 1500);
   } else {
-    setQuizBanner("Miss — try again", "wrong");
+    setQuizBanner(t("quizMiss"), "wrong");
     quizBannerTimeout = window.setTimeout(() => {
       if (quizActive && quizQuestion) {
         setQuizBanner(quizQuestion.prompt);
@@ -263,7 +275,7 @@ const applyLabelsFromCheckbox = (): void => {
 const updateQuizButton = (active: boolean): void => {
   const btn = document.getElementById("quizToggle");
   if (!btn) return;
-  btn.textContent = active ? "Stop quiz" : "Start quiz";
+  btn.textContent = active ? t("stopQuiz") : t("startQuiz");
   btn.classList.toggle("quiz-toggle--active", active);
 };
 
@@ -289,6 +301,13 @@ const QUALITY_PRESETS: Record<Quality, { pixelRatio: number }> = {
   medium: { pixelRatio: Math.min(getMaxPixelRatio(), 1.5) },
   high: { pixelRatio: getMaxPixelRatio() },
 };
+
+const initialLocale = ((): Locale => {
+  const raw = new URLSearchParams(window.location.search).get("lang");
+  return raw && isLocale(raw) ? raw : "en";
+})();
+setLocale(initialLocale);
+applyI18nToDOM();
 
 const renderer = initRenderer();
 const scene = initScene();
@@ -454,7 +473,6 @@ const start = async () => {
 
   type Focusable = {
     id: string;
-    displayName: string;
     mesh: import("three").Object3D;
     focusDistance: number;
   };
@@ -462,23 +480,23 @@ const start = async () => {
   const focusables: Focusable[] = [
     {
       id: "sun",
-      displayName: bodyFacts.sun?.displayName ?? "Sun",
       mesh: sun.model,
       focusDistance: 8,
     },
     ...planets.map((p) => ({
       id: p.name,
-      displayName: bodyFacts[p.name]?.displayName ?? p.name,
       mesh: p.mesh,
       focusDistance: Math.max(1.5, p.radius * 5),
     })),
     ...comets.map((c) => ({
       id: c.name,
-      displayName: bodyFacts[c.name]?.displayName ?? c.name,
       mesh: c.mesh,
       focusDistance: 4,
     })),
   ];
+
+  const focusableDisplayName = (f: Focusable): string =>
+    bodyFacts[f.id]?.displayName ?? f.id;
 
   const focusObject = (id: string): void => {
     const body = focusables.find((b) => b.id === id);
@@ -498,7 +516,7 @@ const start = async () => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "object-item";
-      btn.textContent = body.displayName;
+      btn.textContent = focusableDisplayName(body);
       btn.addEventListener("click", () => focusObject(body.id));
       return btn;
     };
@@ -523,10 +541,10 @@ const start = async () => {
 
     list.appendChild(createItem(focusables[0]));
     list.appendChild(
-      createGroup("Planets", focusables.slice(1, 1 + planets.length)),
+      createGroup(t("planets"), focusables.slice(1, 1 + planets.length)),
     );
     list.appendChild(
-      createGroup("Comets", focusables.slice(1 + planets.length)),
+      createGroup(t("comets"), focusables.slice(1 + planets.length)),
     );
   };
   populateObjectList();
@@ -591,6 +609,19 @@ const start = async () => {
   );
   tourGuide.setCometsIncluded(cometsCheckbox?.checked ?? true);
   initTourControls();
+
+  onLocaleChange(() => {
+    populateObjectList();
+    syncTourUI();
+    updateQuizButton(quizActive);
+    const panel = document.getElementById("infoPanel");
+    if (currentBodyId && panel?.classList.contains("info-panel--visible")) {
+      showInfoPanel(currentBodyId);
+    }
+    if (quizActive && quizQuestion) {
+      setQuizBanner(quizQuestion.prompt);
+    }
+  });
 
   const appEl = document.getElementById("app");
   const getAppSize = (): [number, number] => [
@@ -685,9 +716,15 @@ const createPlanetLabels = (planets: Planet[]) => {
   const entries = planets.map((planet) => {
     const el = document.createElement("div");
     el.className = "planet-label";
-    el.textContent = planet.name;
+    el.textContent = bodyFacts[planet.name]?.displayName ?? planet.name;
     container.appendChild(el);
     return { planet, el };
+  });
+
+  onLocaleChange(() => {
+    for (const { planet, el } of entries) {
+      el.textContent = bodyFacts[planet.name]?.displayName ?? planet.name;
+    }
   });
 
   const projected = new Vector3();
@@ -891,6 +928,14 @@ const initSettingsPanel = (
       quality.value = "medium";
       quality.dispatchEvent(new Event("change"));
     }
+
+    const language = document.getElementById(
+      "languageSelect",
+    ) as HTMLSelectElement | null;
+    if (language) {
+      language.value = "en";
+      language.dispatchEvent(new Event("change"));
+    }
   });
 
   document.getElementById("infoPanelClose")?.addEventListener("click", () => {
@@ -960,6 +1005,14 @@ const initSettingsPanel = (
       renderer.setSize(w, h);
       postProcessing.setSize(w, h);
     },
+  );
+
+  bindSelect<Locale>(
+    "languageSelect",
+    "lang",
+    LOCALES,
+    "en",
+    (v) => setLocale(v),
   );
 };
 

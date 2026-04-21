@@ -1,3 +1,5 @@
+import { getDictionary, onLocaleChange } from "./i18n";
+
 export type BodyFact = {
   id: string;
   displayName: string;
@@ -12,10 +14,16 @@ export type BodyFact = {
   funFact: string;
 };
 
-export const bodyFacts: Record<string, BodyFact> = {
+export type QuizQuestion = {
+  prompt: string;
+  answer: string;
+};
+
+type BodyBase = Omit<BodyFact, "displayName" | "funFact">;
+
+const BODY_BASE: Record<string, BodyBase> = {
   sun: {
     id: "sun",
-    displayName: "Sun",
     type: "star",
     diameter: "1,392,700 km",
     mass: "1.989 × 10³⁰ kg",
@@ -24,12 +32,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "~5,500 °C (surface)",
     distanceFromSun: "—",
-    funFact:
-      "Contains 99.86% of the Solar System's mass. Every second it converts 600 million tons of hydrogen into helium.",
   },
   mercury: {
     id: "mercury",
-    displayName: "Mercury",
     type: "planet",
     diameter: "4,879 km",
     mass: "3.3 × 10²³ kg",
@@ -38,12 +43,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "0",
     temperature: "-173 °C to 427 °C",
     distanceFromSun: "57.9 million km",
-    funFact:
-      "A day on Mercury is longer than its year. It also has the greatest temperature swings in the Solar System.",
   },
   venus: {
     id: "venus",
-    displayName: "Venus",
     type: "planet",
     diameter: "12,104 km",
     mass: "4.87 × 10²⁴ kg",
@@ -52,12 +54,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "0",
     temperature: "~465 °C",
     distanceFromSun: "108.2 million km",
-    funFact:
-      "The hottest planet in the Solar System — even though it isn't the closest to the Sun. It also rotates in the opposite direction to most planets.",
   },
   earth: {
     id: "earth",
-    displayName: "Earth",
     type: "planet",
     diameter: "12,742 km",
     mass: "5.97 × 10²⁴ kg",
@@ -66,12 +65,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "1",
     temperature: "-88 °C to 58 °C",
     distanceFromSun: "149.6 million km",
-    funFact:
-      "The only known planet with life. Water covers 71% of the surface, and the inner core is roughly as hot as the Sun's surface.",
   },
   mars: {
     id: "mars",
-    displayName: "Mars",
     type: "planet",
     diameter: "6,779 km",
     mass: "6.42 × 10²³ kg",
@@ -80,12 +76,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "2",
     temperature: "-143 °C to 35 °C",
     distanceFromSun: "227.9 million km",
-    funFact:
-      "Home to Olympus Mons — the tallest volcano in the Solar System, nearly 3× the height of Mount Everest.",
   },
   jupiter: {
     id: "jupiter",
-    displayName: "Jupiter",
     type: "planet",
     diameter: "139,820 km",
     mass: "1.9 × 10²⁷ kg",
@@ -94,12 +87,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "95",
     temperature: "~-145 °C",
     distanceFromSun: "778.5 million km",
-    funFact:
-      "The largest planet — all the others combined would fit inside it. The Great Red Spot is a storm that has raged for at least 350 years.",
   },
   saturn: {
     id: "saturn",
-    displayName: "Saturn",
     type: "planet",
     diameter: "116,460 km",
     mass: "5.68 × 10²⁶ kg",
@@ -108,12 +98,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "146",
     temperature: "~-178 °C",
     distanceFromSun: "1.43 billion km",
-    funFact:
-      "Its density is so low it would float on water (given an ocean big enough). The rings are mostly ice and dust.",
   },
   uranus: {
     id: "uranus",
-    displayName: "Uranus",
     type: "planet",
     diameter: "50,724 km",
     mass: "8.68 × 10²⁵ kg",
@@ -122,12 +109,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "27",
     temperature: "~-224 °C",
     distanceFromSun: "2.87 billion km",
-    funFact:
-      "Rotates 'on its side' — its rotation axis is almost parallel to its orbital plane. Each pole has 42 years of day followed by 42 years of night.",
   },
   neptune: {
     id: "neptune",
-    displayName: "Neptune",
     type: "planet",
     diameter: "49,244 km",
     mass: "1.02 × 10²⁶ kg",
@@ -136,12 +120,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "14",
     temperature: "~-214 °C",
     distanceFromSun: "4.5 billion km",
-    funFact:
-      "Winds reach 2,100 km/h — the fastest in the Solar System. Discovered mathematically, from Uranus's orbital perturbations, before anyone had seen it.",
   },
   halley: {
     id: "halley",
-    displayName: "1P/Halley",
     type: "comet",
     diameter: "~11 km (nucleus)",
     mass: "2.2 × 10¹⁴ kg",
@@ -150,12 +131,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.59 – 35.1 AU (perihelion – aphelion)",
-    funFact:
-      "The most famous short-period comet, visible to the naked eye from Earth every 76 years. Last seen in 1986, next predicted return in 2061.",
   },
   haleBopp: {
     id: "haleBopp",
-    displayName: "C/1995 O1 (Hale-Bopp)",
     type: "comet",
     diameter: "~60 km (nucleus)",
     mass: "~1.3 × 10¹⁶ kg",
@@ -164,12 +142,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.91 – 370.8 AU",
-    funFact:
-      "One of the brightest comets ever observed, visible to the naked eye for a record 18 months (1996–97). Unusually large nucleus for a long-period comet.",
   },
   neowise: {
     id: "neowise",
-    displayName: "C/2020 F3 (NEOWISE)",
     type: "comet",
     diameter: "~5 km (nucleus)",
     mass: "—",
@@ -178,12 +153,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.29 – 715 AU",
-    funFact:
-      "Discovered in March 2020 by the NEOWISE space telescope. The first brightly visible comet from the Northern Hemisphere since Hale-Bopp, with a striking split tail.",
   },
   encke: {
     id: "encke",
-    displayName: "2P/Encke",
     type: "comet",
     diameter: "~4.8 km (nucleus)",
     mass: "—",
@@ -192,12 +164,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.34 – 4.11 AU",
-    funFact:
-      "The comet with the shortest known orbital period — it completes a full loop faster than any other named comet. Origin of the Taurid meteor shower.",
   },
   shoemakerLevy9: {
     id: "shoemakerLevy9",
-    displayName: "D/1993 F2 (Shoemaker–Levy 9)",
     type: "comet",
     diameter: "~2 km (fragmented)",
     mass: "—",
@@ -206,12 +175,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "—",
     distanceFromSun: "orbited Jupiter",
-    funFact:
-      "Broken into 21 pieces by Jupiter's tidal forces, which then crashed into Jupiter in July 1994 — the first direct observation of a Solar System collision.",
   },
   swiftTuttle: {
     id: "swiftTuttle",
-    displayName: "109P/Swift–Tuttle",
     type: "comet",
     diameter: "~26 km (nucleus)",
     mass: "—",
@@ -220,12 +186,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.96 – 51 AU",
-    funFact:
-      "Parent body of the annual Perseid meteor shower in August. One of the largest known short-period comet nuclei — if it ever hit Earth it would be catastrophic.",
   },
   tempelTuttle: {
     id: "tempelTuttle",
-    displayName: "55P/Tempel–Tuttle",
     type: "comet",
     diameter: "~3.6 km (nucleus)",
     mass: "—",
@@ -234,12 +197,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.98 – 19.7 AU",
-    funFact:
-      "Produces the Leonid meteor shower, which sometimes erupts into dramatic storms with thousands of meteors per hour when the comet is near perihelion.",
   },
   lovejoy: {
     id: "lovejoy",
-    displayName: "C/2014 Q2 (Lovejoy)",
     type: "comet",
     diameter: "~1 km (nucleus)",
     mass: "—",
@@ -248,12 +208,9 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "1.29 – 1,100 AU",
-    funFact:
-      "Famous for its bright green coma caused by diatomic carbon molecules fluorescing under sunlight. Found to be releasing ethyl alcohol — a 'boozy' comet.",
   },
   ison: {
     id: "ison",
-    displayName: "C/2012 S1 (ISON)",
     type: "comet",
     diameter: "~0.6 km (nucleus)",
     mass: "—",
@@ -262,52 +219,31 @@ export const bodyFacts: Record<string, BodyFact> = {
     moons: "—",
     temperature: "varies",
     distanceFromSun: "0.012 AU at perihelion",
-    funFact:
-      "Hyped as the 'comet of the century' before disintegrating during its extremely close Sun passage on 28 November 2013.",
   },
 };
 
-export type QuizQuestion = {
-  prompt: string;
-  answer: string;
+export const bodyFacts: Record<string, BodyFact> = {};
+export const QUIZ_QUESTIONS: QuizQuestion[] = [];
+
+const rebuildFromDictionary = (): void => {
+  const dict = getDictionary();
+
+  for (const key of Object.keys(bodyFacts)) delete bodyFacts[key];
+  for (const [id, base] of Object.entries(BODY_BASE)) {
+    const l = dict.bodies[id];
+    if (!l) continue;
+    bodyFacts[id] = {
+      ...base,
+      displayName: l.displayName,
+      funFact: l.funFact,
+    };
+  }
+
+  QUIZ_QUESTIONS.length = 0;
+  for (const q of dict.quiz) {
+    QUIZ_QUESTIONS.push({ prompt: q.prompt, answer: q.answer });
+  }
 };
 
-export const QUIZ_QUESTIONS: readonly QuizQuestion[] = [
-  { prompt: "Click the biggest planet", answer: "jupiter" },
-  { prompt: "Click the smallest planet", answer: "mercury" },
-  { prompt: "Click the planet with life", answer: "earth" },
-  { prompt: "Click the planet with rings", answer: "saturn" },
-  { prompt: "Click the planet closest to the Sun", answer: "mercury" },
-  { prompt: "Click the farthest planet", answer: "neptune" },
-  { prompt: "Click the hottest planet", answer: "venus" },
-  { prompt: "Click the Red Planet", answer: "mars" },
-  { prompt: "Click the planet that rotates on its side", answer: "uranus" },
-  { prompt: "Click the planet with the fastest winds", answer: "neptune" },
-  { prompt: "Click the star of the Solar System", answer: "sun" },
-  { prompt: "Click the second planet from the Sun", answer: "venus" },
-  { prompt: "Click the third planet from the Sun", answer: "earth" },
-  { prompt: "Click the fourth planet from the Sun", answer: "mars" },
-  { prompt: "Click the planet with the Great Red Spot", answer: "jupiter" },
-  { prompt: "Click the planet with Olympus Mons", answer: "mars" },
-  { prompt: "Click the planet where a day lasts longer than a year", answer: "venus" },
-  { prompt: "Click the planet with a 42-year day and 42-year night", answer: "uranus" },
-  { prompt: "Click the planet with the most moons", answer: "saturn" },
-  { prompt: "Click the planet that would float on water", answer: "saturn" },
-  { prompt: "Click the planet discovered mathematically", answer: "neptune" },
-  { prompt: "Click the planet 71% covered by water", answer: "earth" },
-  { prompt: "Click the planet with two moons", answer: "mars" },
-  { prompt: "Click the planet with the highest surface temperature", answer: "venus" },
-  { prompt: "Click the object containing 99.86% of the Solar System's mass", answer: "sun" },
-  { prompt: "Click the ice giant discovered in 1846", answer: "neptune" },
-  { prompt: "Click the gas giant with icy rings", answer: "saturn" },
-  { prompt: "Click the planet whose year lasts only 88 days", answer: "mercury" },
-  { prompt: "Click Mercury", answer: "mercury" },
-  { prompt: "Click Venus", answer: "venus" },
-  { prompt: "Click Earth", answer: "earth" },
-  { prompt: "Click Mars", answer: "mars" },
-  { prompt: "Click Jupiter", answer: "jupiter" },
-  { prompt: "Click Saturn", answer: "saturn" },
-  { prompt: "Click Uranus", answer: "uranus" },
-  { prompt: "Click Neptune", answer: "neptune" },
-  { prompt: "Click the Sun", answer: "sun" },
-];
+rebuildFromDictionary();
+onLocaleChange(rebuildFromDictionary);

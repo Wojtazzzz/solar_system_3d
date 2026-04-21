@@ -27,7 +27,7 @@
         <div class="loader-sun"></div>
       </div>
       <p class="loader-text">
-        Loading solar system <span class="loader-percent" id="loaderPercent">0%</span>
+        <span data-i18n="loading">Loading solar system</span> <span class="loader-percent" id="loaderPercent">0%</span>
       </p>
     </div>
 
@@ -35,6 +35,7 @@
       class="sidebar-toggle"
       id="sidebarToggle"
       type="button"
+      data-i18n-aria="toggleMenu"
       aria-label="Toggle menu"
       aria-expanded="false"
       aria-controls="sidebar"
@@ -46,6 +47,7 @@
       class="sound-toggle"
       id="soundToggle"
       type="button"
+      data-i18n-aria="toggleSound"
       aria-label="Toggle sound"
       aria-pressed="false"
     >
@@ -65,84 +67,92 @@
 
     <aside class="sidebar" id="sidebar" aria-label="Navigation and settings">
       <header class="sidebar__header">
-        <h1 class="sidebar__title">Solar System 3D</h1>
-        <p class="sidebar__description">
+        <h1 class="sidebar__title" data-i18n="title">Solar System 3D</h1>
+        <p class="sidebar__description" data-i18n="description">
           Interactive 3D orrery. Drag planets to throw them, take a guided tour,
           try the quiz, or explore real planetary facts. Built with Three.js.
         </p>
       </header>
 
       <details class="config-panel">
-        <summary>Settings</summary>
+        <summary data-i18n="settings">Settings</summary>
         <div class="config-controls">
           <label class="config-row">
-            <span>planets shadow</span>
+            <span data-i18n="planetsShadow">planets shadow</span>
             <input type="checkbox" id="togglePlanetsShadowCheckbox" />
           </label>
           <label class="config-row">
-            <span>show orbits</span>
+            <span data-i18n="showOrbits">show orbits</span>
             <input type="checkbox" id="toggleOrbitsCheckbox" checked />
           </label>
           <label class="config-row">
-            <span>show comets</span>
+            <span data-i18n="showComets">show comets</span>
             <input type="checkbox" id="toggleCometsCheckbox" checked />
           </label>
           <label class="config-row">
-            <span>show labels</span>
+            <span data-i18n="showLabels">show labels</span>
             <input type="checkbox" id="toggleLabelsCheckbox" checked />
           </label>
           <label class="config-row">
-            <span>show trails</span>
+            <span data-i18n="showTrails">show trails</span>
             <input type="checkbox" id="toggleTrailsCheckbox" checked />
           </label>
           <label class="config-row">
-            <span>real inclinations</span>
+            <span data-i18n="realInclinations">real inclinations</span>
             <input type="checkbox" id="toggleInclinationsCheckbox" />
           </label>
           <label class="config-row">
-            <span>dance mode</span>
+            <span data-i18n="danceMode">dance mode</span>
             <input type="checkbox" id="toggleDanceModeCheckbox" />
           </label>
           <label class="config-row">
-            <span>debug panel</span>
+            <span data-i18n="debugPanel">debug panel</span>
             <input type="checkbox" id="toggleDebugCheckbox" />
           </label>
           <label class="config-row config-row--stacked">
-            <span>time speed <output id="timeSpeedOutput">1.0x</output></span>
+            <span><span data-i18n="timeSpeed">time speed</span> <output id="timeSpeedOutput">1.0x</output></span>
             <input type="range" id="timeSpeedSlider" min="-5" max="5" step="0.1" value="1" />
           </label>
           <label class="config-row config-row--stacked">
-            <span>stars count <output id="starsCountOutput">2000</output></span>
+            <span><span data-i18n="starsCount">stars count</span> <output id="starsCountOutput">2000</output></span>
             <input type="range" id="starsCountSlider" min="0" max="5000" step="100" value="2000" />
           </label>
           <label class="config-row config-row--stacked">
-            <span>realistic scale <output id="realismOutput">0%</output></span>
+            <span><span data-i18n="realisticScale">realistic scale</span> <output id="realismOutput">0%</output></span>
             <input type="range" id="realismSlider" min="0" max="1" step="0.01" value="0" />
           </label>
           <label class="config-row config-row--stacked">
-            <span>quality</span>
+            <span data-i18n="quality">quality</span>
             <select id="qualitySelect">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
+              <option value="low" data-i18n-option="qualityLow">Low</option>
+              <option value="medium" data-i18n-option="qualityMedium" selected>Medium</option>
+              <option value="high" data-i18n-option="qualityHigh">High</option>
             </select>
           </label>
-          <button type="button" class="reset-btn" id="resetDefaultsBtn">Reset to defaults</button>
+          <label class="config-row config-row--stacked">
+            <span data-i18n="language">language</span>
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="pl">Polski</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </label>
+          <button type="button" class="reset-btn" id="resetDefaultsBtn" data-i18n="resetToDefaults">Reset to defaults</button>
         </div>
       </details>
 
       <details class="config-panel">
-        <summary>Objects</summary>
+        <summary data-i18n="objects">Objects</summary>
         <div class="object-list" id="objectList"></div>
       </details>
 
       <section class="sidebar__minimap" aria-labelledby="minimap-heading">
-        <h2 class="sidebar__section-title" id="minimap-heading">Minimap</h2>
-        <canvas class="minimap" id="minimap" aria-label="Solar system top-down minimap"></canvas>
+        <h2 class="sidebar__section-title" id="minimap-heading" data-i18n="minimap">Minimap</h2>
+        <canvas class="minimap" id="minimap" data-i18n-aria="minimapAria" aria-label="Solar system top-down minimap"></canvas>
       </section>
 
       <footer class="sidebar__footer">
-        <button class="save-view-btn" id="saveViewBtn" type="button">
+        <button class="save-view-btn" id="saveViewBtn" type="button" data-i18n="takeScreenshot">
           Take screenshot
         </button>
         <a
@@ -150,36 +160,37 @@
           href="https://github.com/Wojtazzzz/solar_system_3d"
           target="_blank"
           rel="noopener noreferrer"
+          data-i18n="viewOnGithub"
         >View on GitHub ↗</a>
       </footer>
     </aside>
 
     <main id="app" class="scene">
       <div class="zoom-label">
-        <span class="scroll-text">Scroll to zoom</span>
-        <span class="slide-text">Slide to zoom</span>
-        <span class="click-text">Click planet for info</span>
-        <span class="tap-text">Tap planet for info</span>
+        <span class="scroll-text" data-i18n="scrollToZoom">Scroll to zoom</span>
+        <span class="slide-text" data-i18n="slideToZoom">Slide to zoom</span>
+        <span class="click-text" data-i18n="clickPlanetForInfo">Click planet for info</span>
+        <span class="tap-text" data-i18n="tapPlanetForInfo">Tap planet for info</span>
         <button class="quiz-toggle" id="quizToggle" type="button">Start quiz</button>
         <button class="quiz-toggle tour-toggle" id="tourToggle" type="button">Start tour</button>
       </div>
 
       <aside class="info-panel" id="infoPanel" aria-hidden="true">
-        <button class="info-panel__close" id="infoPanelClose" aria-label="Close">×</button>
+        <button class="info-panel__close" id="infoPanelClose" data-i18n-aria="close" aria-label="Close">×</button>
         <h2 class="info-panel__title" id="infoPanelTitle"></h2>
         <div class="info-panel__compare">
-          <label class="info-panel__compare-label" for="compareSelect">Compare to</label>
-          <select class="info-panel__compare-select" id="compareSelect" aria-label="Compare to another body">
-            <option value="">None</option>
+          <label class="info-panel__compare-label" for="compareSelect" data-i18n="compareTo">Compare to</label>
+          <select class="info-panel__compare-select" id="compareSelect" data-i18n-aria="compareAria" aria-label="Compare to another body">
+            <option value="" data-i18n-option="none">None</option>
           </select>
         </div>
         <dl class="info-panel__data" id="infoPanelData"></dl>
         <div class="info-panel__fact" id="infoPanelFact"></div>
         <div class="info-panel__tour" id="infoPanelTour" hidden>
           <span class="tour-position" id="tourPosition"></span>
-          <button type="button" class="tour-nav" id="tourPrev" aria-label="Previous">← Prev</button>
-          <button type="button" class="tour-nav" id="tourNext" aria-label="Next">Next →</button>
-          <button type="button" class="tour-nav tour-nav--stop" id="tourStop">End tour</button>
+          <button type="button" class="tour-nav" id="tourPrev" data-i18n="prev" data-i18n-aria="prev" aria-label="Previous">← Prev</button>
+          <button type="button" class="tour-nav" id="tourNext" data-i18n="next" data-i18n-aria="next" aria-label="Next">Next →</button>
+          <button type="button" class="tour-nav tour-nav--stop" id="tourStop" data-i18n="endTour">End tour</button>
         </div>
       </aside>
 
@@ -190,12 +201,12 @@
         <div class="compare-panel__content">
           <header class="compare-panel__header">
             <h2 class="compare-panel__title" id="comparePanelTitle"></h2>
-            <button class="compare-panel__close" id="comparePanelClose" aria-label="Close">×</button>
+            <button class="compare-panel__close" id="comparePanelClose" data-i18n-aria="close" aria-label="Close">×</button>
           </header>
           <div class="compare-panel__toolbar">
             <label class="compare-panel__toggle">
               <input type="checkbox" id="comparePanelRealisticToggle" />
-              <span>Realistic sizes</span>
+              <span data-i18n="realisticSizes">Realistic sizes</span>
             </label>
           </div>
           <div class="compare-panel__stage">
@@ -221,6 +232,7 @@
 
       <div class="slider-container">
         <input
+          data-i18n-aria="zoomAria"
           aria-label="Zoom in or out from the Sun"
           class="slider"
           id="zoomSlider"

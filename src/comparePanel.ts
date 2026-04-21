@@ -15,7 +15,9 @@ import {
   WebGLRenderer,
   type Texture,
 } from "three";
-import type { BodyFact } from "./planetData";
+import { bodyFacts, type BodyFact } from "./planetData";
+import { onLocaleChange, t } from "./i18n";
+import type { UIStrings } from "./i18n/types";
 
 const ROTATION_SPEED = 0.45;
 const MODEL_OFFSET_X = 1.8;
@@ -30,14 +32,14 @@ const parseDiameterKm = (value: string): number | null => {
   return Number.isFinite(n) && n > 0 ? n : null;
 };
 
-const FACT_ROWS: ReadonlyArray<readonly [string, (f: BodyFact) => string]> = [
-  ["Diameter", (f) => f.diameter],
-  ["Mass", (f) => f.mass],
-  ["Orbital period", (f) => f.orbitalPeriod],
-  ["Day length", (f) => f.dayLength],
-  ["Moons", (f) => f.moons],
-  ["Temperature", (f) => f.temperature],
-  ["Distance from Sun", (f) => f.distanceFromSun],
+const FACT_ROWS: ReadonlyArray<readonly [keyof UIStrings, (f: BodyFact) => string]> = [
+  ["diameter", (f) => f.diameter],
+  ["mass", (f) => f.mass],
+  ["orbitalPeriod", (f) => f.orbitalPeriod],
+  ["dayLength", (f) => f.dayLength],
+  ["moons", (f) => f.moons],
+  ["temperature", (f) => f.temperature],
+  ["distanceFromSun", (f) => f.distanceFromSun],
 ];
 
 type Elements = {
@@ -69,6 +71,8 @@ export class ComparePanel {
   private modelB: Group | null = null;
   private diameterA: number | null = null;
   private diameterB: number | null = null;
+  private primaryId: string | null = null;
+  private secondaryId: string | null = null;
   private rafId: number | null = null;
 
   constructor(
@@ -110,6 +114,8 @@ export class ComparePanel {
     elements.realisticToggle.addEventListener("change", () =>
       this.applyScaleMode(),
     );
+
+    onLocaleChange(() => this.refreshTexts());
   }
 
   isVisible(): boolean {
@@ -119,14 +125,9 @@ export class ComparePanel {
   show(primary: BodyFact, secondary: BodyFact): void {
     this.clearModels();
 
-    const { title, nameA, nameB, factNameA, factNameB, factA, factB, panel } = this.elements;
-    title.textContent = `${primary.displayName} vs ${secondary.displayName}`;
-    nameA.textContent = primary.displayName;
-    nameB.textContent = secondary.displayName;
-    factNameA.textContent = primary.displayName;
-    factNameB.textContent = secondary.displayName;
-    factA.textContent = primary.funFact;
-    factB.textContent = secondary.funFact;
+    this.primaryId = primary.id;
+    this.secondaryId = secondary.id;
+    this.writeTexts(primary, secondary);
 
     this.diameterA = parseDiameterKm(primary.diameter);
     this.diameterB = parseDiameterKm(secondary.diameter);
@@ -139,6 +140,7 @@ export class ComparePanel {
 
     this.renderTable(primary, secondary);
 
+    const { panel } = this.elements;
     panel.classList.add("compare-panel--visible");
     panel.setAttribute("aria-hidden", "false");
 
@@ -157,6 +159,26 @@ export class ComparePanel {
     this.onClose();
   }
 
+  private writeTexts(primary: BodyFact, secondary: BodyFact): void {
+    const { title, nameA, nameB, factNameA, factNameB, factA, factB } = this.elements;
+    title.textContent = `${primary.displayName} ${t("vs")} ${secondary.displayName}`;
+    nameA.textContent = primary.displayName;
+    nameB.textContent = secondary.displayName;
+    factNameA.textContent = primary.displayName;
+    factNameB.textContent = secondary.displayName;
+    factA.textContent = primary.funFact;
+    factB.textContent = secondary.funFact;
+  }
+
+  private refreshTexts(): void {
+    if (!this.primaryId || !this.secondaryId) return;
+    const primary = bodyFacts[this.primaryId];
+    const secondary = bodyFacts[this.secondaryId];
+    if (!primary || !secondary) return;
+    this.writeTexts(primary, secondary);
+    this.renderTable(primary, secondary);
+  }
+
   private renderTable(primary: BodyFact, secondary: BodyFact): void {
     const el = this.elements.data;
     el.replaceChildren();
@@ -165,9 +187,9 @@ export class ComparePanel {
     this.appendDd(primary.displayName, "compare-panel__header");
     this.appendDd(secondary.displayName, "compare-panel__header");
 
-    for (const [label, read] of FACT_ROWS) {
+    for (const [labelKey, read] of FACT_ROWS) {
       const dt = document.createElement("dt");
-      dt.textContent = label;
+      dt.textContent = t(labelKey);
       el.appendChild(dt);
       this.appendDd(read(primary));
       this.appendDd(read(secondary));
@@ -272,6 +294,8 @@ export class ComparePanel {
     this.modelB = null;
     this.diameterA = null;
     this.diameterB = null;
+    this.primaryId = null;
+    this.secondaryId = null;
   }
 
   private applyScaleMode(): void {
