@@ -252,6 +252,59 @@ body {
   opacity: 0.9;
 }
 
+.info-panel__tour:not([hidden]) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tour-position {
+  grid-column: 1 / -1;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.tour-nav {
+  background: transparent;
+  border: 1px solid var(--main-text-color);
+  color: var(--main-text-color);
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 10px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.tour-nav:hover:not(:disabled) {
+  background: var(--main-text-color);
+  color: #000;
+}
+
+.tour-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tour-nav--stop {
+  grid-column: 1 / -1;
+  border-color: #ff7060;
+  color: #ff7060;
+}
+
+.tour-nav--stop:hover {
+  background: #ff7060;
+  color: #000;
+}
+
 @media (max-width: 767px) {
   .info-panel {
     top: auto;

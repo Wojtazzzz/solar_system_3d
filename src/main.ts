@@ -17,6 +17,7 @@ import { createAsteroidBelt } from "./objects/asteroidBelt";
 import { createStarfield } from "./objects/starfield";
 import { createPostProcessing, type PostProcessing } from "./postProcessing";
 import { DebugPanel } from "./debugPanel";
+import { TourGuide } from "./tourGuide";
 import { settings } from "./settings";
 import {
   bodyFacts,
@@ -71,10 +72,13 @@ let quizActive = false;
 let quizQuestion: QuizQuestion | null = null;
 let lastQuizIndex = -1;
 let quizBannerTimeout: number | null = null;
+let tourGuide: TourGuide | null = null;
 
 const onBodyClick = (name: string): void => {
   if (quizActive) {
     handleQuizAnswer(name);
+  } else if (tourGuide?.isActive() && tourGuide.jumpTo(name)) {
+    // jumped inside tour — info panel updated by tour itself
   } else {
     showInfoPanel(name);
   }
@@ -94,12 +98,39 @@ const showInfoPanel = (name: string): void => {
 
   panel.classList.add("info-panel--visible");
   panel.setAttribute("aria-hidden", "false");
+  syncTourUI();
 };
 
 const hideInfoPanel = (): void => {
   const panel = document.getElementById("infoPanel");
   panel?.classList.remove("info-panel--visible");
   panel?.setAttribute("aria-hidden", "true");
+};
+
+const syncTourUI = (): void => {
+  const tourSection = document.getElementById("infoPanelTour");
+  const prevBtn = document.getElementById("tourPrev") as HTMLButtonElement | null;
+  const nextBtn = document.getElementById("tourNext") as HTMLButtonElement | null;
+  const positionEl = document.getElementById("tourPosition");
+  const toggleBtn = document.getElementById("tourToggle");
+
+  const active = tourGuide?.isActive() ?? false;
+
+  if (tourSection) {
+    if (active) tourSection.removeAttribute("hidden");
+    else tourSection.setAttribute("hidden", "");
+  }
+
+  if (toggleBtn) {
+    toggleBtn.textContent = active ? "Stop tour" : "Start tour";
+    toggleBtn.classList.toggle("quiz-toggle--active", active);
+  }
+
+  if (tourGuide && active && prevBtn && nextBtn && positionEl) {
+    prevBtn.disabled = !tourGuide.hasPrev();
+    nextBtn.disabled = !tourGuide.hasNext();
+    positionEl.textContent = `${tourGuide.getIndex() + 1} / ${tourGuide.getTotal()}`;
+  }
 };
 
 const renderFactsTable = (el: HTMLElement, fact: BodyFact): void => {
@@ -308,6 +339,18 @@ const start = async () => {
 
   initSettingsPanel(planets, rebuildStars, postProcessing, setDebugEnabled);
   initDragAndDrop(sun, planets);
+
+  tourGuide = new TourGuide(
+    camera,
+    (id) => showInfoPanel(id),
+    () => {
+      syncTourUI();
+      if (!tourGuide?.isActive()) hideInfoPanel();
+    },
+    sun,
+    planets,
+  );
+  initTourControls();
 
   window.addEventListener("resize", () => {
     const w = window.innerWidth;
@@ -573,6 +616,60 @@ const initSettingsPanel = (
       postProcessing.setSize(window.innerWidth, window.innerHeight);
     },
   );
+};
+
+const initTourControls = (): void => {
+  document.getElementById("tourToggle")?.addEventListener("click", () => {
+    if (!tourGuide) return;
+    if (tourGuide.isActive()) {
+      tourGuide.stop();
+    } else {
+      tourGuide.start();
+    }
+  });
+  document.getElementById("tourPrev")?.addEventListener("click", () => {
+    tourGuide?.prev();
+  });
+  document.getElementById("tourNext")?.addEventListener("click", () => {
+    tourGuide?.next();
+  });
+  document.getElementById("tourStop")?.addEventListener("click", () => {
+    tourGuide?.stop();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT")
+    ) {
+      return;
+    }
+
+    if (tourGuide?.isActive()) {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        tourGuide.next();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        tourGuide.prev();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        tourGuide.stop();
+      }
+      return;
+    }
+
+    if (event.key === "Escape") {
+      const panel = document.getElementById("infoPanel");
+      if (panel?.classList.contains("info-panel--visible")) {
+        event.preventDefault();
+        hideInfoPanel();
+      }
+    }
+  });
 };
 
 const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {

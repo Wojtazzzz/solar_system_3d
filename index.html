@@ -32,6 +32,7 @@
         <span class="click-text">Click planet for info</span>
         <span class="tap-text">Tap planet for info</span>
         <button class="quiz-toggle" id="quizToggle" type="button">Start quiz</button>
+        <button class="quiz-toggle tour-toggle" id="tourToggle" type="button">Start tour</button>
       </div>
 
       <details class="config-panel">
@@ -99,6 +100,12 @@
         <h2 class="info-panel__title" id="infoPanelTitle"></h2>
         <dl class="info-panel__data" id="infoPanelData"></dl>
         <p class="info-panel__fact" id="infoPanelFact"></p>
+        <div class="info-panel__tour" id="infoPanelTour" hidden>
+          <span class="tour-position" id="tourPosition"></span>
+          <button type="button" class="tour-nav" id="tourPrev" aria-label="Previous">← Prev</button>
+          <button type="button" class="tour-nav" id="tourNext" aria-label="Next">Next →</button>
+          <button type="button" class="tour-nav tour-nav--stop" id="tourStop">End tour</button>
+        </div>
       </aside>
 
       <div class="quiz-banner" id="quizBanner" aria-hidden="true"></div>
