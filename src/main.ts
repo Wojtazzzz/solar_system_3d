@@ -387,6 +387,85 @@ const start = async () => {
   initDragAndDrop(sun, planets, comets);
   initSidebarDrawer();
 
+  type Focusable = {
+    id: string;
+    displayName: string;
+    mesh: import("three").Object3D;
+    focusDistance: number;
+  };
+
+  const focusables: Focusable[] = [
+    {
+      id: "sun",
+      displayName: bodyFacts.sun?.displayName ?? "Sun",
+      mesh: sun.model,
+      focusDistance: 8,
+    },
+    ...planets.map((p) => ({
+      id: p.name,
+      displayName: bodyFacts[p.name]?.displayName ?? p.name,
+      mesh: p.mesh,
+      focusDistance: Math.max(1.5, p.radius * 5),
+    })),
+    ...comets.map((c) => ({
+      id: c.name,
+      displayName: bodyFacts[c.name]?.displayName ?? c.name,
+      mesh: c.mesh,
+      focusDistance: 4,
+    })),
+  ];
+
+  const focusObject = (id: string): void => {
+    const body = focusables.find((b) => b.id === id);
+    if (!body) return;
+    if (tourGuide?.isActive()) tourGuide.stop();
+    if (quizActive) setQuizActive(false);
+    camera.setFocus(body.mesh, body.focusDistance);
+    showInfoPanel(id);
+  };
+
+  const populateObjectList = (): void => {
+    const list = document.getElementById("objectList");
+    if (!list) return;
+    list.replaceChildren();
+
+    const createItem = (body: Focusable): HTMLButtonElement => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "object-item";
+      btn.textContent = body.displayName;
+      btn.addEventListener("click", () => focusObject(body.id));
+      return btn;
+    };
+
+    const createGroup = (
+      label: string,
+      bodies: Focusable[],
+    ): HTMLDetailsElement => {
+      const details = document.createElement("details");
+      details.className = "object-sub";
+      const summary = document.createElement("summary");
+      summary.textContent = label;
+      details.appendChild(summary);
+      const subList = document.createElement("div");
+      subList.className = "object-sub-list";
+      for (const body of bodies) {
+        subList.appendChild(createItem(body));
+      }
+      details.appendChild(subList);
+      return details;
+    };
+
+    list.appendChild(createItem(focusables[0]));
+    list.appendChild(
+      createGroup("Planets", focusables.slice(1, 1 + planets.length)),
+    );
+    list.appendChild(
+      createGroup("Comets", focusables.slice(1 + planets.length)),
+    );
+  };
+  populateObjectList();
+
   tourGuide = new TourGuide(
     camera,
     (id) => showInfoPanel(id),
@@ -730,6 +809,7 @@ const initSettingsPanel = (
       tourGuide.stop();
     } else {
       hideInfoPanel();
+      camera.clearFocus();
     }
   });
 
@@ -855,6 +935,7 @@ const initTourControls = (): void => {
       if (panel?.classList.contains("info-panel--visible")) {
         event.preventDefault();
         hideInfoPanel();
+        camera.clearFocus();
       }
     }
   });

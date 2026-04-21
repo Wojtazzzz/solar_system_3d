@@ -420,6 +420,73 @@ details.config-panel[open] summary {
   border-radius: 4px;
 }
 
+.object-list {
+  padding: var(--padding);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.object-item {
+  background: transparent;
+  border: none;
+  color: var(--main-text-color);
+  font-family: "Orbitron", sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.object-item:hover,
+.object-item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.object-sub {
+  border-radius: 4px;
+}
+
+.object-sub summary {
+  cursor: pointer;
+  padding: 7px 10px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  user-select: none;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  border-radius: 4px;
+}
+
+.object-sub summary:hover,
+.object-sub summary:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 1;
+  outline: none;
+}
+
+.object-sub[open] summary {
+  opacity: 1;
+}
+
+.object-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 4px 12px;
+  border-left: 1px solid var(--border-subtle);
+  margin-left: 10px;
+  margin-top: 2px;
+}
+
 .reset-btn {
   margin-top: 10px;
   background: transparent;
