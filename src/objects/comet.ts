@@ -179,12 +179,8 @@ export class Comet {
   }
 
   startDrag(): void {}
-  setDragPosition(_pos: Vector3): void {
-    void _pos;
-  }
-  endDrag(_velocity: Vector3): void {
-    void _velocity;
-  }
+  setDragPosition(_pos: Vector3): void {}
+  endDrag(_velocity: Vector3): void {}
 }
 
 export const COMET_CONFIGS: readonly CometParams[] = [

@@ -12,8 +12,6 @@ const listeners = new Set<() => void>();
 export const isLocale = (value: string): value is Locale =>
   (LOCALES as readonly string[]).includes(value);
 
-export const getLocale = (): Locale => currentLocale;
-
 export const setLocale = (locale: Locale): void => {
   if (currentLocale === locale) return;
   currentLocale = locale;

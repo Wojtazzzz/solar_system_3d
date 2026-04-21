@@ -38,10 +38,6 @@ export class Sun {
     return this.model;
   }
 
-  getHomePosition(): Vector3 {
-    return this.homePosition;
-  }
-
   startDrag(): void {
     this.physics.startDrag(this.model.position);
   }

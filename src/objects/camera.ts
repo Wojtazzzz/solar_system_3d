@@ -40,10 +40,6 @@ export class Camera {
     return this.radius;
   }
 
-  getMaxRadius(): number {
-    return this.maxRadius;
-  }
-
   setMaxRadius(max: number): void {
     this.maxRadius = Math.max(camera.minRadius, max);
     if (this.radius > this.maxRadius) this.radius = this.maxRadius;
@@ -63,10 +59,6 @@ export class Camera {
 
   clearFocus(): void {
     this.focusTarget = null;
-  }
-
-  isFocused(): boolean {
-    return this.focusTarget !== null;
   }
 
   updatePosition() {

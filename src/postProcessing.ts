@@ -13,7 +13,6 @@ import {
 
 export type PostProcessing = {
   readonly composer: EffectComposer;
-  readonly bloomPass: UnrealBloomPass;
   setSize(width: number, height: number): void;
 };
 
@@ -52,5 +51,5 @@ export const createPostProcessing = (
     bloomPass.resolution.set(w, h);
   };
 
-  return { composer, bloomPass, setSize };
+  return { composer, setSize };
 };

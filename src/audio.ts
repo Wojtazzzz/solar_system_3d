@@ -98,29 +98,6 @@ export class AudioEngine {
     this.hum = { main, high, sub, gain };
   }
 
-  playExplosion(): void {
-    if (!this.ctx || !this.masterGain || this.targetGain <= 0) return;
-    const ctx = this.ctx;
-    const now = ctx.currentTime;
-    const duration = 0.55;
-    const buffer = this.createNoiseBuffer(duration);
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.Q.value = 2.5;
-    filter.frequency.setValueAtTime(2200, now);
-    filter.frequency.exponentialRampToValueAtTime(220, now + duration);
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.45, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.masterGain);
-    src.start(now);
-    src.stop(now + duration + 0.05);
-  }
-
   playWhoosh(intensity = 1): void {
     if (!this.ctx || !this.masterGain || this.targetGain <= 0) return;
     const ctx = this.ctx;
