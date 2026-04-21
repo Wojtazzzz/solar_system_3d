@@ -77,7 +77,26 @@ export const loadPlanetTextures = async (
   return new Map(entries);
 };
 
-export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
+const PLANET_CONFIGS = [
+  mercury,
+  venus,
+  earth,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+] as const;
+
+const GAS_GIANT_RADIUS_DIVISOR = 4;
+const GAS_GIANTS: ReadonlySet<string> = new Set([
+  jupiter.name,
+  saturn.name,
+  uranus.name,
+  neptune.name,
+]);
+
+export const createSolarSystemPlanets = (textures: Map<string, Texture>): Planet[] => {
   const getTexture = (name: string): Texture => {
     const t = textures.get(name);
     if (!t) {
@@ -88,78 +107,19 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
 
   const normalMap = textures.get("normal") ?? null;
 
-  return [
-    new Planet(
-      mercury.name,
-      mercury.radius * planet.radiusScale,
-      mercury.orbitalRadius,
-      mercury.orbitalSpeed,
-      mercury.inclination,
-      getTexture(mercury.name),
+  return PLANET_CONFIGS.map((cfg) => {
+    const baseRadius = cfg.radius * planet.radiusScale;
+    const radius = GAS_GIANTS.has(cfg.name)
+      ? baseRadius / GAS_GIANT_RADIUS_DIVISOR
+      : baseRadius;
+    return new Planet(
+      cfg.name,
+      radius,
+      cfg.orbitalRadius,
+      cfg.orbitalSpeed,
+      cfg.inclination,
+      getTexture(cfg.name),
       normalMap,
-    ),
-    new Planet(
-      venus.name,
-      venus.radius * planet.radiusScale,
-      venus.orbitalRadius,
-      venus.orbitalSpeed,
-      venus.inclination,
-      getTexture(venus.name),
-      normalMap,
-    ),
-    new Planet(
-      earth.name,
-      earth.radius * planet.radiusScale,
-      earth.orbitalRadius,
-      earth.orbitalSpeed,
-      earth.inclination,
-      getTexture(earth.name),
-      normalMap,
-    ),
-    new Planet(
-      mars.name,
-      mars.radius * planet.radiusScale,
-      mars.orbitalRadius,
-      mars.orbitalSpeed,
-      mars.inclination,
-      getTexture(mars.name),
-      normalMap,
-    ),
-    new Planet(
-      jupiter.name,
-      (jupiter.radius * planet.radiusScale) / 4,
-      jupiter.orbitalRadius,
-      jupiter.orbitalSpeed,
-      jupiter.inclination,
-      getTexture(jupiter.name),
-      normalMap,
-    ),
-    new Planet(
-      saturn.name,
-      (saturn.radius * planet.radiusScale) / 4,
-      saturn.orbitalRadius,
-      saturn.orbitalSpeed,
-      saturn.inclination,
-      getTexture(saturn.name),
-      normalMap,
-    ),
-    new Planet(
-      uranus.name,
-      (uranus.radius * planet.radiusScale) / 4,
-      uranus.orbitalRadius,
-      uranus.orbitalSpeed,
-      uranus.inclination,
-      getTexture(uranus.name),
-      normalMap,
-    ),
-    new Planet(
-      neptune.name,
-      (neptune.radius * planet.radiusScale) / 4,
-      neptune.orbitalRadius,
-      neptune.orbitalSpeed,
-      neptune.inclination,
-      getTexture(neptune.name),
-      normalMap,
-    ),
-  ];
+    );
+  });
 };

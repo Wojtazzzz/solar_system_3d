@@ -28,14 +28,7 @@ import {
   type BodyFact,
   type QuizQuestion,
 } from "./planetData";
-import {
-  readBool,
-  readEnum,
-  readNumber,
-  writeBool,
-  writeEnum,
-  writeNumber,
-} from "./urlState";
+import { bindCheckbox, bindRange, bindSelect } from "./controlBindings";
 import {
   stars as starsOptions,
   sun as sunOptions,
@@ -252,8 +245,6 @@ const QUALITY_PRESETS: Record<Quality, { pixelRatio: number }> = {
   high: { pixelRatio: getMaxPixelRatio() },
 };
 
-localStorage.setItem("isPlanetsShadow", "");
-
 const renderer = initRenderer();
 const scene = initScene();
 const camera = initCamera();
@@ -276,11 +267,17 @@ const start = async () => {
   const sun = new Sun();
   const planets = createSolarSystemPlanets(textures);
 
-  let starsMesh = createStarsInstancedMesh(starsOptions.count);
-  let stars: Star[] = Array.from(
-    { length: starsOptions.count },
-    (_, i) => new Star(starsMesh, i),
-  );
+  const buildStars = (count: number): { mesh: ReturnType<typeof createStarsInstancedMesh>; stars: Star[] } => {
+    const safeCount = Math.max(1, count);
+    const mesh = createStarsInstancedMesh(safeCount);
+    const stars: Star[] = [];
+    for (let i = 0; i < count; i++) {
+      stars.push(new Star(mesh, i));
+    }
+    return { mesh, stars };
+  };
+
+  let { mesh: starsMesh, stars } = buildStars(starsOptions.count);
 
   const skybox = createStarfield();
   scene.add(skybox);
@@ -334,12 +331,7 @@ const start = async () => {
     (starsMesh.material as MeshBasicMaterial).dispose();
     starsMesh.dispose();
 
-    const safeCount = Math.max(1, count);
-    starsMesh = createStarsInstancedMesh(safeCount);
-    stars = [];
-    for (let i = 0; i < count; i++) {
-      stars.push(new Star(starsMesh, i));
-    }
+    ({ mesh: starsMesh, stars } = buildStars(count));
     if (count > 0) {
       scene.add(starsMesh);
     }
@@ -649,81 +641,6 @@ const createPlanetLabels = (planets: Planet[]) => {
   return { updateLabels };
 };
 
-const bindCheckbox = (
-  id: string,
-  key: string,
-  defaultValue: boolean,
-  apply: (value: boolean) => void,
-): void => {
-  const el = document.querySelector<HTMLInputElement>(`#${id}`);
-  if (!el) return;
-  const initial = readBool(key, defaultValue);
-  el.checked = initial;
-  apply(initial);
-  el.addEventListener("change", () => {
-    apply(el.checked);
-    writeBool(key, el.checked, defaultValue);
-  });
-};
-
-const bindRange = (
-  id: string,
-  outputId: string | null,
-  key: string,
-  defaultValue: number,
-  formatOutput: ((value: number) => string) | null,
-  applyLive: ((value: number) => void) | null,
-  applyCommit?: (value: number) => void,
-): void => {
-  const el = document.querySelector<HTMLInputElement>(`#${id}`);
-  if (!el) return;
-  const output = outputId
-    ? document.querySelector<HTMLOutputElement>(`#${outputId}`)
-    : null;
-  const min = parseFloat(el.min);
-  const max = parseFloat(el.max);
-  const raw = readNumber(key, defaultValue);
-  const initial = Math.max(min, Math.min(max, raw));
-  el.value = String(initial);
-  if (output) {
-    output.textContent = formatOutput ? formatOutput(initial) : String(initial);
-  }
-  applyLive?.(initial);
-  if (applyCommit && initial !== defaultValue) applyCommit(initial);
-
-  el.addEventListener("input", () => {
-    const v = parseFloat(el.value);
-    if (output) {
-      output.textContent = formatOutput ? formatOutput(v) : el.value;
-    }
-    applyLive?.(v);
-  });
-  el.addEventListener("change", () => {
-    const v = parseFloat(el.value);
-    applyCommit?.(v);
-    writeNumber(key, v, defaultValue);
-  });
-};
-
-const bindSelect = <T extends string>(
-  id: string,
-  key: string,
-  allowed: readonly T[],
-  defaultValue: T,
-  apply: (value: T) => void,
-): void => {
-  const el = document.querySelector<HTMLSelectElement>(`#${id}`);
-  if (!el) return;
-  const initial = readEnum(key, allowed, defaultValue);
-  el.value = initial;
-  apply(initial);
-  el.addEventListener("change", () => {
-    const v = el.value as T;
-    apply(v);
-    writeEnum(key, v, defaultValue);
-  });
-};
-
 const initSettingsPanel = (
   planets: Planet[],
   comets: Comet[],
@@ -734,7 +651,6 @@ const initSettingsPanel = (
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
 
   bindCheckbox("togglePlanetsShadowCheckbox", "sh", false, (v) => {
-    localStorage.setItem("isPlanetsShadow", v ? "1" : "");
     planets.forEach((planet) => planet.setIsShadow(v));
   });
 

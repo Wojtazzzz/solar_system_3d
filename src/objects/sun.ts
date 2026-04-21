@@ -1,13 +1,8 @@
 import { Mesh, PointLight, ShaderMaterial, SphereGeometry, Vector3 } from "three";
 import { sun } from "../consts";
-import { settings } from "../settings";
+import { BodyPhysics } from "./bodyPhysics";
 
-type DragState = "idle" | "dragging" | "returning";
-
-const SPRING_STIFFNESS = 3.2;
-const SPRING_DAMPING = 1.9;
-const SETTLE_DISTANCE = 0.05;
-const SETTLE_VELOCITY_SQ = 0.01;
+const DANCE_RADIUS_SCALE = 0.4;
 
 export class Sun {
   public readonly name = "sun";
@@ -20,16 +15,7 @@ export class Sun {
     sun.positionY,
     sun.positionZ,
   );
-  private readonly velocity = new Vector3();
-  private readonly toHome = new Vector3();
-  private readonly acceleration = new Vector3();
-  private readonly basePosition = new Vector3();
-  private readonly danceOffset = new Vector3();
-  private dragState: DragState = "idle";
-
-  private turbX = Math.random() * Math.PI * 2;
-  private turbY = Math.random() * Math.PI * 2;
-  private turbZ = Math.random() * Math.PI * 2;
+  private readonly physics = new BodyPhysics();
 
   constructor() {
     this.material = this.createSunMaterial();
@@ -39,7 +25,6 @@ export class Sun {
       this.material,
     );
     this.model.position.copy(this.homePosition);
-    this.basePosition.copy(this.homePosition);
 
     this.light = new PointLight(
       sun.lightColor,
@@ -58,73 +43,21 @@ export class Sun {
   }
 
   startDrag(): void {
-    this.dragState = "dragging";
-    this.velocity.set(0, 0, 0);
-    this.basePosition.copy(this.model.position).sub(this.danceOffset);
+    this.physics.startDrag(this.model.position);
   }
 
   setDragPosition(pos: Vector3): void {
-    this.basePosition.copy(pos);
+    this.physics.setDragPosition(pos);
   }
 
   endDrag(releaseVelocity: Vector3): void {
-    this.dragState = "returning";
-    this.velocity.copy(releaseVelocity);
+    this.physics.endDrag(releaseVelocity);
   }
 
   updatePosition(dt: number): void {
-    if (this.dragState === "returning" && dt > 0) {
-      this.toHome.copy(this.homePosition).sub(this.basePosition);
-      const distance = this.toHome.length();
-
-      this.acceleration
-        .copy(this.toHome)
-        .multiplyScalar(SPRING_STIFFNESS)
-        .addScaledVector(this.velocity, -SPRING_DAMPING);
-
-      this.velocity.addScaledVector(this.acceleration, dt);
-      this.basePosition.addScaledVector(this.velocity, dt);
-
-      if (
-        distance < SETTLE_DISTANCE &&
-        this.velocity.lengthSq() < SETTLE_VELOCITY_SQ
-      ) {
-        this.basePosition.copy(this.homePosition);
-        this.velocity.set(0, 0, 0);
-        this.dragState = "idle";
-      }
-    } else if (this.dragState === "idle") {
-      this.basePosition.copy(this.homePosition);
-    }
-
-    this.computeDanceOffset(dt);
-    this.model.position.copy(this.basePosition).add(this.danceOffset);
+    this.physics.update(dt, this.homePosition, sun.radius * DANCE_RADIUS_SCALE);
+    this.physics.writeTo(this.model.position);
     this.light.position.copy(this.model.position);
-  }
-
-  private computeDanceOffset(dt: number): void {
-    if (!settings.danceMode) {
-      this.danceOffset.set(0, 0, 0);
-      return;
-    }
-    const scaled = Math.max(0, dt) * settings.timeSpeed;
-    this.turbX += scaled * 38;
-    this.turbY += scaled * 47;
-    this.turbZ += scaled * 42;
-    const amp = sun.radius * 0.4;
-    const ox =
-      Math.sin(this.turbX) * 0.55 +
-      Math.sin(this.turbX * 2.3) * 0.3 +
-      Math.sin(this.turbX * 5.7) * 0.15;
-    const oy =
-      Math.sin(this.turbY) * 0.55 +
-      Math.sin(this.turbY * 2.3) * 0.3 +
-      Math.sin(this.turbY * 5.7) * 0.15;
-    const oz =
-      Math.sin(this.turbZ) * 0.55 +
-      Math.sin(this.turbZ * 2.3) * 0.3 +
-      Math.sin(this.turbZ * 5.7) * 0.15;
-    this.danceOffset.set(ox * amp, oy * amp, oz * amp);
   }
 
   updateNoiseAnimation(time: number) {
