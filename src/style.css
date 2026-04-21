@@ -3,7 +3,7 @@
 :root {
   --main-text-color: #ffffff;
   --padding: 20px;
-  --sidebar-width: 280px;
+  --sidebar-width: 340px;
   --border-subtle: rgba(255, 255, 255, 0.15);
 }
 
@@ -906,6 +906,10 @@ details.config-panel[open] summary {
 }
 
 @media (max-width: 767px) {
+  :root {
+    --sidebar-width: 280px;
+  }
+
   .sidebar {
     position: fixed;
     top: 0;
