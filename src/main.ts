@@ -16,6 +16,7 @@ import { createEarthAtmosphere } from "./objects/earthAtmosphere";
 import { createAsteroidBelt } from "./objects/asteroidBelt";
 import { createStarfield } from "./objects/starfield";
 import { createPostProcessing, type PostProcessing } from "./postProcessing";
+import { DebugPanel } from "./debugPanel";
 import { settings } from "./settings";
 import {
   bodyFacts,
@@ -294,7 +295,17 @@ const start = async () => {
     }
   };
 
-  initSettingsPanel(planets, rebuildStars, postProcessing);
+  let debugPanel: DebugPanel | null = null;
+  const setDebugEnabled = (enabled: boolean): void => {
+    if (enabled && !debugPanel) {
+      debugPanel = new DebugPanel(renderer);
+    } else if (!enabled && debugPanel) {
+      debugPanel.destroy();
+      debugPanel = null;
+    }
+  };
+
+  initSettingsPanel(planets, rebuildStars, postProcessing, setDebugEnabled);
   initDragAndDrop(sun, planets);
 
   window.addEventListener("resize", () => {
@@ -312,6 +323,7 @@ const start = async () => {
 
   const animate = () => {
     requestAnimationFrame(animate);
+    debugPanel?.begin();
 
     const dt = Math.min(0.05, clock.getDelta());
     scaledElapsed += dt * settings.timeSpeed;
@@ -349,6 +361,7 @@ const start = async () => {
     updateLabels();
 
     postProcessing.composer.render();
+    debugPanel?.end();
   };
 
   camera.updatePosition();
@@ -483,6 +496,7 @@ const initSettingsPanel = (
   planets: Planet[],
   rebuildStars: (count: number) => void,
   postProcessing: PostProcessing,
+  setDebugEnabled: (enabled: boolean) => void,
 ): void => {
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
 
@@ -510,6 +524,8 @@ const initSettingsPanel = (
     settings.realInclinations = v;
     planets.forEach((planet) => planet.resetTrail());
   });
+
+  bindCheckbox("toggleDebugCheckbox", "debug", false, setDebugEnabled);
 
   document.getElementById("quizToggle")?.addEventListener("click", () => {
     setQuizActive(!quizActive);

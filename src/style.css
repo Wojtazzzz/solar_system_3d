@@ -308,6 +308,39 @@ body {
   color: #ff5252;
 }
 
+.debug-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #0f0;
+  font-family: "SF Mono", Monaco, Consolas, monospace;
+  font-size: 11px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  z-index: 10;
+  line-height: 1.6;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+  min-width: 160px;
+}
+
+.debug-panel__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.debug-panel__label {
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+.debug-panel__value {
+  font-variant-numeric: tabular-nums;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
