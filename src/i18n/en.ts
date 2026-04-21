@@ -44,6 +44,8 @@ export const en: Dictionary = {
     next: "Next →",
     endTour: "End tour",
     close: "Close",
+    minimize: "Minimize",
+    expand: "Expand",
 
     compareTo: "Compare to",
     none: "None",

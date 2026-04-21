@@ -133,6 +133,15 @@ const populateCompareSelect = (excludeId: string): void => {
   select.value = "";
 };
 
+const setInfoPanelMinimized = (minimized: boolean): void => {
+  const panel = document.getElementById("infoPanel");
+  const btn = document.getElementById("infoPanelMinimize");
+  if (!panel || !btn) return;
+  panel.classList.toggle("info-panel--minimized", minimized);
+  btn.textContent = minimized ? "+" : "−";
+  btn.setAttribute("aria-label", minimized ? t("expand") : t("minimize"));
+};
+
 const showInfoPanel = (name: string): void => {
   const fact = bodyFacts[name];
   const panel = document.getElementById("infoPanel");
@@ -148,6 +157,7 @@ const showInfoPanel = (name: string): void => {
   factEl.textContent = fact.funFact;
   renderFactsTable(dataEl, fact);
 
+  setInfoPanelMinimized(false);
   panel.classList.add("info-panel--visible");
   panel.setAttribute("aria-hidden", "false");
   syncTourUI();
@@ -173,6 +183,8 @@ const syncTourUI = (): void => {
     if (active) tourSection.removeAttribute("hidden");
     else tourSection.setAttribute("hidden", "");
   }
+
+  if (active) setInfoPanelMinimized(false);
 
   if (toggleBtn) {
     toggleBtn.textContent = active ? t("stopTour") : t("startTour");
@@ -976,6 +988,12 @@ const initSettingsPanel = (
       hideInfoPanel();
       camera.clearFocus();
     }
+  });
+
+  document.getElementById("infoPanelMinimize")?.addEventListener("click", () => {
+    const panel = document.getElementById("infoPanel");
+    if (!panel) return;
+    setInfoPanelMinimized(!panel.classList.contains("info-panel--minimized"));
   });
 
   document.getElementById("compareSelect")?.addEventListener("change", (event) => {

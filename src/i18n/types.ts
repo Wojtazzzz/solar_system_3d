@@ -44,6 +44,8 @@ export type UIStrings = {
   next: string;
   endTour: string;
   close: string;
+  minimize: string;
+  expand: string;
 
   compareTo: string;
   none: string;

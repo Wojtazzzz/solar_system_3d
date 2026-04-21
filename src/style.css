@@ -568,10 +568,15 @@ details.config-panel[open] summary {
   pointer-events: auto;
 }
 
-.info-panel__close {
+.info-panel__controls {
   position: absolute;
   top: 12px;
   right: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.info-panel__control {
   background: transparent;
   border: 1px solid var(--main-text-color);
   color: var(--main-text-color);
@@ -588,10 +593,14 @@ details.config-panel[open] summary {
   padding: 0;
 }
 
-.info-panel__close:hover,
-.info-panel__close:focus-visible {
+.info-panel__control:hover,
+.info-panel__control:focus-visible {
   background: var(--main-text-color);
   color: #000;
+}
+
+.info-panel:has(.info-panel__tour:not([hidden])) #infoPanelMinimize {
+  display: none;
 }
 
 .info-panel__title {
@@ -600,7 +609,17 @@ details.config-panel[open] summary {
   text-transform: uppercase;
   letter-spacing: 3px;
   font-size: 20px;
-  padding-right: 40px;
+  padding-right: 76px;
+}
+
+.info-panel--minimized .info-panel__title {
+  margin: 0;
+}
+
+.info-panel--minimized .info-panel__compare,
+.info-panel--minimized .info-panel__data,
+.info-panel--minimized .info-panel__fact {
+  display: none;
 }
 
 .info-panel__compare {

@@ -44,6 +44,8 @@ export const de: Dictionary = {
     next: "Weiter →",
     endTour: "Tour beenden",
     close: "Schließen",
+    minimize: "Minimieren",
+    expand: "Erweitern",
 
     compareTo: "Vergleichen mit",
     none: "Keine",
