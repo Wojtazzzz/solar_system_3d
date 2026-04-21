@@ -50,6 +50,7 @@ export class Planet {
     public readonly orbitalSpeed: number,
     public readonly inclination: number,
     private readonly texture: Texture,
+    private readonly normalMap: Texture | null = null,
   ) {
     this.mesh = new Mesh(
       new SphereGeometry(radius, 32, 32),
@@ -171,7 +172,10 @@ export class Planet {
   setIsShadow(isShadow: boolean) {
     if (isShadow && !(this.mesh.material instanceof MeshStandardMaterial)) {
       this.mesh.material.dispose();
-      this.mesh.material = new MeshStandardMaterial({ map: this.texture });
+      this.mesh.material = new MeshStandardMaterial({
+        map: this.texture,
+        normalMap: this.normalMap ?? undefined,
+      });
     } else if (!isShadow && !(this.mesh.material instanceof MeshBasicMaterial)) {
       this.mesh.material.dispose();
       this.mesh.material = new MeshBasicMaterial({ map: this.texture });

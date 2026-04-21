@@ -52,6 +52,7 @@ const PLANET_NAMES = [
   uranus.name,
   neptune.name,
   "moon",
+  "normal",
 ] as const;
 
 export const loadPlanetTextures = async (): Promise<Map<string, Texture>> => {
@@ -74,6 +75,8 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
     return t;
   };
 
+  const normalMap = textures.get("normal") ?? null;
+
   return [
     new Planet(
       mercury.name,
@@ -82,6 +85,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       mercury.orbitalSpeed,
       mercury.inclination,
       getTexture(mercury.name),
+      normalMap,
     ),
     new Planet(
       venus.name,
@@ -90,6 +94,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       venus.orbitalSpeed,
       venus.inclination,
       getTexture(venus.name),
+      normalMap,
     ),
     new Planet(
       earth.name,
@@ -98,6 +103,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       earth.orbitalSpeed,
       earth.inclination,
       getTexture(earth.name),
+      normalMap,
     ),
     new Planet(
       mars.name,
@@ -106,6 +112,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       mars.orbitalSpeed,
       mars.inclination,
       getTexture(mars.name),
+      normalMap,
     ),
     new Planet(
       jupiter.name,
@@ -114,6 +121,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       jupiter.orbitalSpeed,
       jupiter.inclination,
       getTexture(jupiter.name),
+      normalMap,
     ),
     new Planet(
       saturn.name,
@@ -122,6 +130,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       saturn.orbitalSpeed,
       saturn.inclination,
       getTexture(saturn.name),
+      normalMap,
     ),
     new Planet(
       uranus.name,
@@ -130,6 +139,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       uranus.orbitalSpeed,
       uranus.inclination,
       getTexture(uranus.name),
+      normalMap,
     ),
     new Planet(
       neptune.name,
@@ -138,6 +148,7 @@ export const createSolarSystemPlanets = (textures: Map<string, Texture>) => {
       neptune.orbitalSpeed,
       neptune.inclination,
       getTexture(neptune.name),
+      normalMap,
     ),
   ];
 };

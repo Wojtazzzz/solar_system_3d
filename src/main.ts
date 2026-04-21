@@ -13,6 +13,8 @@ import { SunFlares } from "./objects/sunFlares";
 import { Moon } from "./objects/moon";
 import { EarthClouds } from "./objects/earthClouds";
 import { createEarthAtmosphere } from "./objects/earthAtmosphere";
+import { createAsteroidBelt } from "./objects/asteroidBelt";
+import { createStarfield } from "./objects/starfield";
 import { createPostProcessing, type PostProcessing } from "./postProcessing";
 import { settings } from "./settings";
 import {
@@ -237,6 +239,12 @@ const start = async () => {
     (_, i) => new Star(starsMesh, i),
   );
 
+  const skybox = createStarfield();
+  scene.add(skybox);
+
+  const asteroidBelt = createAsteroidBelt();
+  scene.add(asteroidBelt);
+
   scene.add(camera.object, sun.model, sun.getLight(), starsMesh);
 
   const sunFlares = new SunFlares(sunOptions.radius);
@@ -333,6 +341,8 @@ const start = async () => {
     if (earthClouds) {
       earthClouds.update(scaledElapsed, settings.timeSpeed);
     }
+
+    asteroidBelt.rotation.y += 0.0003 * settings.timeSpeed;
 
     stars.forEach((star) => star.tryToExplode(camera.object.position));
 
