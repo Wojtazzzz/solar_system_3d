@@ -47,9 +47,9 @@ export class Star {
     this.instancedMesh.instanceMatrix.needsUpdate = true;
   }
 
-  tryToExplode(currentCameraPosition: Vector3): void {
+  tryToExplode(currentCameraPosition: Vector3): boolean {
     if (Math.random() <= 1 - stars.chanceToExplode) {
-      return;
+      return false;
     }
 
     const starDistanceToCamera = currentCameraPosition.distanceTo(
@@ -57,7 +57,7 @@ export class Star {
     );
 
     if (starDistanceToCamera < stars.maxDistanceFromCameraToPreventExplode) {
-      return;
+      return false;
     }
 
     this.scale = stars.explosionRadiusScale;
@@ -67,5 +67,7 @@ export class Star {
       this.scale = 1;
       this.applyMatrix();
     }, 16 * stars.explosionLengthInFrames);
+
+    return true;
   }
 }

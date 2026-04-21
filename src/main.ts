@@ -20,6 +20,7 @@ import type { PostProcessing } from "./postProcessing";
 import type { DebugPanel } from "./debugPanel";
 import { TourGuide } from "./tourGuide";
 import { Minimap } from "./minimap";
+import { audioEngine } from "./audio";
 import { settings } from "./settings";
 import {
   bodyFacts,
@@ -656,6 +657,23 @@ const initSettingsPanel = (
     settings.danceMode = v;
   });
 
+  const soundToggle = document.getElementById(
+    "soundToggle",
+  ) as HTMLButtonElement | null;
+  if (soundToggle) {
+    soundToggle.setAttribute("aria-pressed", "false");
+    let audioReady = false;
+    soundToggle.addEventListener("click", () => {
+      if (!audioReady) {
+        audioEngine.init();
+        audioReady = true;
+      }
+      const next = soundToggle.getAttribute("aria-pressed") !== "true";
+      soundToggle.setAttribute("aria-pressed", next ? "true" : "false");
+      audioEngine.setEnabled(next);
+    });
+  }
+
   bindCheckbox("toggleDebugCheckbox", "debug", false, setDebugEnabled);
 
   document.getElementById("quizToggle")?.addEventListener("click", () => {
@@ -663,7 +681,44 @@ const initSettingsPanel = (
   });
 
   document.getElementById("resetDefaultsBtn")?.addEventListener("click", () => {
-    window.location.assign(window.location.pathname);
+    history.replaceState(null, "", window.location.pathname);
+
+    const checkboxDefaults: Array<[string, boolean]> = [
+      ["togglePlanetsShadowCheckbox", false],
+      ["toggleOrbitsCheckbox", true],
+      ["toggleCometsCheckbox", true],
+      ["toggleLabelsCheckbox", true],
+      ["toggleTrailsCheckbox", true],
+      ["toggleInclinationsCheckbox", false],
+      ["toggleDanceModeCheckbox", false],
+      ["toggleDebugCheckbox", false],
+    ];
+    for (const [id, value] of checkboxDefaults) {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (!el) continue;
+      el.checked = value;
+      el.dispatchEvent(new Event("change"));
+    }
+
+    const rangeDefaults: Array<[string, string]> = [
+      ["timeSpeedSlider", "1"],
+      ["starsCountSlider", "2000"],
+    ];
+    for (const [id, value] of rangeDefaults) {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (!el) continue;
+      el.value = value;
+      el.dispatchEvent(new Event("input"));
+      el.dispatchEvent(new Event("change"));
+    }
+
+    const quality = document.getElementById(
+      "qualitySelect",
+    ) as HTMLSelectElement | null;
+    if (quality) {
+      quality.value = "medium";
+      quality.dispatchEvent(new Event("change"));
+    }
   });
 
   document.getElementById("infoPanelClose")?.addEventListener("click", () => {
@@ -936,6 +991,11 @@ const initDragAndDrop = (
 
     if (wasClick) {
       onBodyClick(clickedName);
+    } else {
+      const speed = velocity.length();
+      if (speed > 1) {
+        audioEngine.playWhoosh(Math.min(1, speed / 20));
+      }
     }
   };
 

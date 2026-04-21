@@ -62,8 +62,8 @@ body {
 .sidebar__description {
   margin: 0;
   font-size: 11px;
-  line-height: 1.55;
-  letter-spacing: 0.5px;
+  line-height: 1.7;
+  letter-spacing: 1.5px;
   text-transform: none;
   opacity: 0.65;
 }
@@ -729,6 +729,50 @@ details.config-panel[open] summary {
   display: none;
 }
 
+.sound-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--main-text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.sound-toggle:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.sound-toggle:focus-visible {
+  outline: 2px solid var(--main-text-color);
+  outline-offset: 2px;
+}
+
+.sound-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.sound-toggle[aria-pressed="false"] .sound-icon--on {
+  display: none;
+}
+
+.sound-toggle[aria-pressed="true"] .sound-icon--off {
+  display: none;
+}
+
+.sound-toggle[aria-pressed="false"] .sound-icon--off {
+  opacity: 0.55;
+}
+
 @media (max-width: 767px) {
   .sidebar {
     position: fixed;
@@ -765,6 +809,10 @@ details.config-panel[open] summary {
 
   .sidebar-toggle {
     display: flex;
+  }
+
+  .sound-toggle {
+    right: 64px;
   }
 
   .info-panel {

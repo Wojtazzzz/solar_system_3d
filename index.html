@@ -42,6 +42,25 @@
       <span class="sidebar-toggle__icon" aria-hidden="true"></span>
     </button>
 
+    <button
+      class="sound-toggle"
+      id="soundToggle"
+      type="button"
+      aria-label="Toggle sound"
+      aria-pressed="false"
+    >
+      <svg class="sound-icon sound-icon--on" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/>
+        <path d="M16 8.5a3.5 3.5 0 010 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M18.5 6a7 7 0 010 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <svg class="sound-icon sound-icon--off" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/>
+        <line x1="16" y1="9" x2="22" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="22" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <aside class="sidebar" id="sidebar" aria-label="Navigation and settings">
