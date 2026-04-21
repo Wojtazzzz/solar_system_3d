@@ -18,6 +18,7 @@ import { createStarfield } from "./objects/starfield";
 import type { PostProcessing } from "./postProcessing";
 import type { DebugPanel } from "./debugPanel";
 import { TourGuide } from "./tourGuide";
+import { Minimap } from "./minimap";
 import { settings } from "./settings";
 import {
   bodyFacts,
@@ -360,6 +361,13 @@ const start = async () => {
     }
   };
 
+  const minimapCanvas = document.getElementById(
+    "minimap",
+  ) as HTMLCanvasElement | null;
+  const minimap = minimapCanvas
+    ? new Minimap(minimapCanvas, sun, planets, camera)
+    : null;
+
   initSettingsPanel(planets, rebuildStars, postProcessing, setDebugEnabled);
   initDragAndDrop(sun, planets);
 
@@ -383,6 +391,7 @@ const start = async () => {
     renderer.setSize(w, h);
     postProcessing.setSize(w, h);
     sunFlares.setPixelRatio(renderer.getPixelRatio());
+    minimap?.resize();
   });
 
   const clock = new Clock();
@@ -426,6 +435,7 @@ const start = async () => {
     stars.forEach((star) => star.tryToExplode(camera.object.position));
 
     updateLabels();
+    minimap?.draw();
 
     postProcessing.composer.render();
     debugPanel?.end();

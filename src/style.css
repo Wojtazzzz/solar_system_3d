@@ -388,6 +388,28 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.minimap {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 150px;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .minimap {
+    width: 100px;
+    height: 100px;
+    bottom: 80px;
+    right: 12px;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
