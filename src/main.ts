@@ -263,7 +263,12 @@ slider.value = String(cameraOptions.initialRadius);
 const start = async () => {
   const postProcessingPromise = import("./postProcessing");
 
-  const textures = await loadPlanetTextures();
+  const loaderPercent = document.getElementById("loaderPercent");
+  const textures = await loadPlanetTextures((loaded, total) => {
+    if (loaderPercent) {
+      loaderPercent.textContent = `${Math.round((loaded / total) * 100)}%`;
+    }
+  });
 
   const sun = new Sun();
   const planets = createSolarSystemPlanets(textures);

@@ -121,18 +121,12 @@ body {
   margin: 0;
 }
 
-.loader-dots span {
+.loader-percent {
   display: inline-block;
-  opacity: 0;
-  animation: loader-dot-fade 1.4s infinite;
-}
-
-.loader-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes loader-dot-fade {
-  0%, 60%, 100% { opacity: 0; }
-  30% { opacity: 1; }
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5em;
+  text-align: right;
+  opacity: 0.8;
 }
 
 .planet-labels {

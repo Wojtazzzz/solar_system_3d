@@ -55,11 +55,19 @@ const PLANET_NAMES = [
   "normal",
 ] as const;
 
-export const loadPlanetTextures = async (): Promise<Map<string, Texture>> => {
+export const loadPlanetTextures = async (
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<Map<string, Texture>> => {
   const loader = new TextureLoader();
+  const total = PLANET_NAMES.length;
+  let loaded = 0;
+  onProgress?.(0, total);
+
   const entries = await Promise.all(
     PLANET_NAMES.map(async (name): Promise<[string, Texture]> => {
       const texture = await loader.loadAsync(`/images/${name}.jpg`);
+      loaded++;
+      onProgress?.(loaded, total);
       return [name, texture];
     }),
   );
