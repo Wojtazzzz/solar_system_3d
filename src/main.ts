@@ -662,6 +662,10 @@ const initSettingsPanel = (
     setQuizActive(!quizActive);
   });
 
+  document.getElementById("resetDefaultsBtn")?.addEventListener("click", () => {
+    window.location.assign(window.location.pathname);
+  });
+
   document.getElementById("infoPanelClose")?.addEventListener("click", () => {
     if (tourGuide?.isActive()) {
       tourGuide.stop();
