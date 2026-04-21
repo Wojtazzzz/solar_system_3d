@@ -466,6 +466,50 @@ const start = async () => {
   };
   populateObjectList();
 
+  document.getElementById("saveViewBtn")?.addEventListener("click", () => {
+    const src = renderer.domElement;
+    const off = document.createElement("canvas");
+    off.width = src.width;
+    off.height = src.height;
+    const ctx = off.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(src, 0, 0);
+
+    const labelsContainer = document.querySelector(".planet-labels");
+    if (labelsContainer?.classList.contains("planet-labels--visible")) {
+      const pr = renderer.getPixelRatio();
+      ctx.font = `${10 * pr}px "Orbitron", sans-serif`;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+      ctx.shadowBlur = 8 * pr;
+
+      const projected = new Vector3();
+      const offsetY = 25 * pr;
+      for (const planet of planets) {
+        projected.copy(planet.mesh.position).project(camera.object);
+        if (projected.z > 1 || projected.z < -1) continue;
+        const x = (projected.x * 0.5 + 0.5) * src.width;
+        const y = (-projected.y * 0.5 + 0.5) * src.height;
+        ctx.fillText(planet.name.toUpperCase(), x, y - offsetY);
+      }
+    }
+
+    off.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `solar-system-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
+  });
+
   tourGuide = new TourGuide(
     camera,
     (id) => showInfoPanel(id),

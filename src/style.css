@@ -83,6 +83,31 @@ body {
 .sidebar__footer {
   padding-top: 10px;
   border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.save-view-btn {
+  background: transparent;
+  border: 1px solid var(--main-text-color);
+  color: var(--main-text-color);
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.save-view-btn:hover,
+.save-view-btn:focus-visible {
+  background: var(--main-text-color);
+  color: #000;
+  outline: none;
 }
 
 .github-link {

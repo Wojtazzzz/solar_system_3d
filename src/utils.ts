@@ -35,7 +35,7 @@ export const initRenderer = () => {
     const width = app?.clientWidth ?? window.innerWidth;
     const height = app?.clientHeight ?? window.innerHeight;
 
-    window.renderer = new WebGLRenderer();
+    window.renderer = new WebGLRenderer({ preserveDrawingBuffer: true });
     window.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     window.renderer.setSize(width, height);
 
