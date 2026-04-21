@@ -163,8 +163,14 @@
       <aside class="info-panel" id="infoPanel" aria-hidden="true">
         <button class="info-panel__close" id="infoPanelClose" aria-label="Close">×</button>
         <h2 class="info-panel__title" id="infoPanelTitle"></h2>
+        <div class="info-panel__compare">
+          <label class="info-panel__compare-label" for="compareSelect">Compare to</label>
+          <select class="info-panel__compare-select" id="compareSelect" aria-label="Compare to another body">
+            <option value="">None</option>
+          </select>
+        </div>
         <dl class="info-panel__data" id="infoPanelData"></dl>
-        <p class="info-panel__fact" id="infoPanelFact"></p>
+        <div class="info-panel__fact" id="infoPanelFact"></div>
         <div class="info-panel__tour" id="infoPanelTour" hidden>
           <span class="tour-position" id="tourPosition"></span>
           <button type="button" class="tour-nav" id="tourPrev" aria-label="Previous">← Prev</button>
@@ -174,6 +180,40 @@
       </aside>
 
       <div class="quiz-banner" id="quizBanner" aria-hidden="true"></div>
+
+      <div class="compare-panel" id="comparePanel" aria-hidden="true" role="dialog" aria-labelledby="comparePanelTitle">
+        <div class="compare-panel__backdrop"></div>
+        <div class="compare-panel__content">
+          <header class="compare-panel__header">
+            <h2 class="compare-panel__title" id="comparePanelTitle"></h2>
+            <button class="compare-panel__close" id="comparePanelClose" aria-label="Close">×</button>
+          </header>
+          <div class="compare-panel__toolbar">
+            <label class="compare-panel__toggle">
+              <input type="checkbox" id="comparePanelRealisticToggle" />
+              <span>Realistic sizes</span>
+            </label>
+          </div>
+          <div class="compare-panel__stage">
+            <canvas class="compare-panel__canvas" id="comparePanelCanvas"></canvas>
+            <div class="compare-panel__names">
+              <span id="comparePanelNameA"></span>
+              <span id="comparePanelNameB"></span>
+            </div>
+          </div>
+          <dl class="compare-panel__data" id="comparePanelData"></dl>
+          <div class="compare-panel__facts">
+            <div class="compare-panel__fact">
+              <span class="compare-panel__fact-name" id="comparePanelFactNameA"></span>
+              <span id="comparePanelFactA"></span>
+            </div>
+            <div class="compare-panel__fact">
+              <span class="compare-panel__fact-name" id="comparePanelFactNameB"></span>
+              <span id="comparePanelFactB"></span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="slider-container">
         <input

@@ -29,6 +29,7 @@ import {
   type QuizQuestion,
 } from "./planetData";
 import { bindCheckbox, bindRange, bindSelect } from "./controlBindings";
+import { ComparePanel } from "./comparePanel";
 import {
   stars as starsOptions,
   sun as sunOptions,
@@ -80,6 +81,46 @@ const onBodyClick = (name: string): void => {
   }
 };
 
+let currentBodyId: string | null = null;
+
+const COMPARE_GROUPS: ReadonlyArray<{ label: string; type: BodyFact["type"] }> = [
+  { label: "Star", type: "star" },
+  { label: "Planets", type: "planet" },
+  { label: "Comets", type: "comet" },
+];
+
+const populateCompareSelect = (excludeId: string): void => {
+  const select = document.getElementById(
+    "compareSelect",
+  ) as HTMLSelectElement | null;
+  if (!select) return;
+
+  select.replaceChildren();
+
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = "None";
+  select.appendChild(none);
+
+  for (const group of COMPARE_GROUPS) {
+    const items = Object.values(bodyFacts).filter(
+      (f) => f.type === group.type && f.id !== excludeId,
+    );
+    if (items.length === 0) continue;
+    const optgroup = document.createElement("optgroup");
+    optgroup.label = group.label;
+    for (const fact of items) {
+      const opt = document.createElement("option");
+      opt.value = fact.id;
+      opt.textContent = fact.displayName;
+      optgroup.appendChild(opt);
+    }
+    select.appendChild(optgroup);
+  }
+
+  select.value = "";
+};
+
 const showInfoPanel = (name: string): void => {
   const fact = bodyFacts[name];
   const panel = document.getElementById("infoPanel");
@@ -87,6 +128,9 @@ const showInfoPanel = (name: string): void => {
   const dataEl = document.getElementById("infoPanelData");
   const factEl = document.getElementById("infoPanelFact");
   if (!fact || !panel || !titleEl || !dataEl || !factEl) return;
+
+  currentBodyId = name;
+  populateCompareSelect(name);
 
   titleEl.textContent = fact.displayName;
   factEl.textContent = fact.funFact;
@@ -101,6 +145,7 @@ const hideInfoPanel = (): void => {
   const panel = document.getElementById("infoPanel");
   panel?.classList.remove("info-panel--visible");
   panel?.setAttribute("aria-hidden", "true");
+  currentBodyId = null;
 };
 
 const syncTourUI = (): void => {
@@ -369,12 +414,15 @@ const start = async () => {
     ? new Minimap(minimapCanvas, sun, planets, camera)
     : null;
 
+  const comparePanel = initComparePanel(textures);
+
   initSettingsPanel(
     planets,
     comets,
     rebuildStars,
     postProcessing,
     setDebugEnabled,
+    comparePanel,
   );
   initDragAndDrop(sun, planets, comets);
   initSidebarDrawer();
@@ -641,12 +689,66 @@ const createPlanetLabels = (planets: Planet[]) => {
   return { updateLabels };
 };
 
+const initComparePanel = (textures: Map<string, import("three").Texture>): ComparePanel | null => {
+  const panel = document.getElementById("comparePanel");
+  const canvas = document.getElementById("comparePanelCanvas") as HTMLCanvasElement | null;
+  const title = document.getElementById("comparePanelTitle");
+  const nameA = document.getElementById("comparePanelNameA");
+  const nameB = document.getElementById("comparePanelNameB");
+  const factNameA = document.getElementById("comparePanelFactNameA");
+  const factNameB = document.getElementById("comparePanelFactNameB");
+  const factA = document.getElementById("comparePanelFactA");
+  const factB = document.getElementById("comparePanelFactB");
+  const data = document.getElementById("comparePanelData");
+  const realisticToggle = document.getElementById(
+    "comparePanelRealisticToggle",
+  ) as HTMLInputElement | null;
+
+  if (
+    !panel ||
+    !canvas ||
+    !title ||
+    !nameA ||
+    !nameB ||
+    !factNameA ||
+    !factNameB ||
+    !factA ||
+    !factB ||
+    !data ||
+    !realisticToggle
+  ) {
+    return null;
+  }
+
+  return new ComparePanel(
+    {
+      panel,
+      canvas,
+      title,
+      nameA,
+      nameB,
+      factNameA,
+      factNameB,
+      factA,
+      factB,
+      data,
+      realisticToggle,
+    },
+    textures,
+    () => {
+      const select = document.getElementById("compareSelect") as HTMLSelectElement | null;
+      if (select) select.value = "";
+    },
+  );
+};
+
 const initSettingsPanel = (
   planets: Planet[],
   comets: Comet[],
   rebuildStars: (count: number) => void,
   postProcessing: PostProcessing,
   setDebugEnabled: (enabled: boolean) => void,
+  comparePanel: ComparePanel | null,
 ): void => {
   const labelsContainer = document.querySelector<HTMLElement>(".planet-labels");
 
@@ -773,6 +875,20 @@ const initSettingsPanel = (
     }
   });
 
+  document.getElementById("compareSelect")?.addEventListener("change", (event) => {
+    const select = event.currentTarget as HTMLSelectElement;
+    const compareId = select.value;
+    if (!compareId || !currentBodyId || !comparePanel) {
+      comparePanel?.hide();
+      return;
+    }
+    const primary = bodyFacts[currentBodyId];
+    const secondary = bodyFacts[compareId];
+    if (!primary || !secondary) return;
+    comparePanel.show(primary, secondary);
+  });
+
+
   bindRange(
     "timeSpeedSlider",
     "timeSpeedOutput",
@@ -868,6 +984,15 @@ const initTourControls = (): void => {
         target.tagName === "SELECT")
     ) {
       return;
+    }
+
+    if (event.key === "Escape") {
+      const comparePanel = document.getElementById("comparePanel");
+      if (comparePanel?.classList.contains("compare-panel--visible")) {
+        event.preventDefault();
+        (document.getElementById("comparePanelClose") as HTMLButtonElement | null)?.click();
+        return;
+      }
     }
 
     if (event.key === "Escape" && isSidebarOpen()) {
