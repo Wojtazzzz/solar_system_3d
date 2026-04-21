@@ -861,11 +861,47 @@ details.config-panel[open] summary {
   display: none;
 }
 
-.sound-toggle {
+.top-toolbar {
   position: fixed;
   top: 14px;
   right: 14px;
   z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-select {
+  height: 40px;
+  padding: 0 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--main-text-color);
+  font-family: "Orbitron", sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+}
+
+.lang-select:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.lang-select:focus-visible {
+  outline: 2px solid var(--main-text-color);
+  outline-offset: 2px;
+}
+
+.lang-select option {
+  background: #010101;
+  color: var(--main-text-color);
+}
+
+.sound-toggle {
   width: 40px;
   height: 40px;
   background: rgba(0, 0, 0, 0.7);
@@ -947,7 +983,7 @@ details.config-panel[open] summary {
     display: flex;
   }
 
-  .sound-toggle {
+  .top-toolbar {
     right: 64px;
   }
 
