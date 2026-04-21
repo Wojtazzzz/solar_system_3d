@@ -41,7 +41,13 @@ export class Planet {
   private readonly homeCache = new Vector3();
   private readonly toHome = new Vector3();
   private readonly acceleration = new Vector3();
+  private readonly basePosition = new Vector3();
+  private readonly danceOffset = new Vector3();
   private dragState: DragState = "idle";
+
+  private turbX = Math.random() * Math.PI * 2;
+  private turbY = Math.random() * Math.PI * 2;
+  private turbZ = Math.random() * Math.PI * 2;
 
   public constructor(
     public readonly name: string,
@@ -117,6 +123,11 @@ export class Planet {
   startDrag(): void {
     this.dragState = "dragging";
     this.velocity.set(0, 0, 0);
+    this.basePosition.copy(this.mesh.position).sub(this.danceOffset);
+  }
+
+  setDragPosition(pos: Vector3): void {
+    this.basePosition.copy(pos);
   }
 
   endDrag(releaseVelocity: Vector3): void {
@@ -134,13 +145,10 @@ export class Planet {
       : 0;
 
     if (this.dragState === "idle") {
-      this.getHomePosition(this.mesh.position);
-      return;
-    }
-
-    if (this.dragState === "returning" && dt > 0) {
+      this.getHomePosition(this.basePosition);
+    } else if (this.dragState === "returning" && dt > 0) {
       this.getHomePosition(this.homeCache);
-      this.toHome.copy(this.homeCache).sub(this.mesh.position);
+      this.toHome.copy(this.homeCache).sub(this.basePosition);
       const distance = this.toHome.length();
 
       this.acceleration
@@ -149,17 +157,45 @@ export class Planet {
         .addScaledVector(this.velocity, -SPRING_DAMPING);
 
       this.velocity.addScaledVector(this.acceleration, dt);
-      this.mesh.position.addScaledVector(this.velocity, dt);
+      this.basePosition.addScaledVector(this.velocity, dt);
 
       if (
         distance < SETTLE_DISTANCE &&
         this.velocity.lengthSq() < SETTLE_VELOCITY_SQ
       ) {
-        this.mesh.position.copy(this.homeCache);
+        this.basePosition.copy(this.homeCache);
         this.velocity.set(0, 0, 0);
         this.dragState = "idle";
       }
     }
+
+    this.computeDanceOffset(dt);
+    this.mesh.position.copy(this.basePosition).add(this.danceOffset);
+  }
+
+  private computeDanceOffset(dt: number): void {
+    if (!settings.danceMode) {
+      this.danceOffset.set(0, 0, 0);
+      return;
+    }
+    const scaled = Math.max(0, dt) * settings.timeSpeed;
+    this.turbX += scaled * 38;
+    this.turbY += scaled * 47;
+    this.turbZ += scaled * 42;
+    const amp = Math.max(0.25, this.radius * 2.0);
+    const ox =
+      Math.sin(this.turbX) * 0.55 +
+      Math.sin(this.turbX * 2.3) * 0.3 +
+      Math.sin(this.turbX * 5.7) * 0.15;
+    const oy =
+      Math.sin(this.turbY) * 0.55 +
+      Math.sin(this.turbY * 2.3) * 0.3 +
+      Math.sin(this.turbY * 5.7) * 0.15;
+    const oz =
+      Math.sin(this.turbZ) * 0.55 +
+      Math.sin(this.turbZ * 2.3) * 0.3 +
+      Math.sin(this.turbZ * 5.7) * 0.15;
+    this.danceOffset.set(ox * amp, oy * amp, oz * amp);
   }
 
   updateRotation() {

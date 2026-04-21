@@ -53,6 +53,7 @@ type Draggable = {
   readonly name: string;
   readonly mesh: Object3D;
   startDrag(): void;
+  setDragPosition(pos: Vector3): void;
   endDrag(velocity: Vector3): void;
 };
 
@@ -525,6 +526,10 @@ const initSettingsPanel = (
     planets.forEach((planet) => planet.resetTrail());
   });
 
+  bindCheckbox("toggleDanceModeCheckbox", "dance", false, (v) => {
+    settings.danceMode = v;
+  });
+
   bindCheckbox("toggleDebugCheckbox", "debug", false, setDebugEnabled);
 
   document.getElementById("quizToggle")?.addEventListener("click", () => {
@@ -653,7 +658,7 @@ const initDragAndDrop = (sun: Sun, planets: Planet[]): void => {
 
     if (raycaster.ray.intersectPlane(dragPlane, dragIntersection)) {
       const next = dragIntersection.sub(dragOffset);
-      active.mesh.position.copy(next);
+      active.setDragPosition(next);
 
       const now = performance.now();
       history.push({ pos: next.clone(), time: now });
