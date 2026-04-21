@@ -889,7 +889,10 @@ const initSettingsPanel = (
   });
 
   document.getElementById("resetDefaultsBtn")?.addEventListener("click", () => {
-    history.replaceState(null, "", window.location.pathname);
+    const preserved = new URLSearchParams(window.location.search);
+    const keepLang = preserved.get("lang");
+    const nextQuery = keepLang ? `?lang=${encodeURIComponent(keepLang)}` : "";
+    history.replaceState(null, "", `${window.location.pathname}${nextQuery}`);
 
     const checkboxDefaults: Array<[string, boolean]> = [
       ["togglePlanetsShadowCheckbox", false],
@@ -927,14 +930,6 @@ const initSettingsPanel = (
     if (quality) {
       quality.value = "medium";
       quality.dispatchEvent(new Event("change"));
-    }
-
-    const language = document.getElementById(
-      "languageSelect",
-    ) as HTMLSelectElement | null;
-    if (language) {
-      language.value = "en";
-      language.dispatchEvent(new Event("change"));
     }
   });
 
@@ -1267,11 +1262,12 @@ const initDragAndDrop = (
 
 start();
 
-window.addEventListener("wheel", (event: WheelEvent) => {
+renderer.domElement.addEventListener("wheel", (event: WheelEvent) => {
+  event.preventDefault();
   camera.setRadius(camera.getRadius() + event.deltaY * ZOOM_SPEED * 0.01);
 
   slider.value = String(camera.getRadius());
-});
+}, { passive: false });
 
 slider.addEventListener("input", () => {
   camera.setRadius(parseFloat(slider.value));
