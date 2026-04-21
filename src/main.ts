@@ -597,9 +597,13 @@ const initSettingsPanel = (
     setQuizActive(!quizActive);
   });
 
-  document
-    .getElementById("infoPanelClose")
-    ?.addEventListener("click", hideInfoPanel);
+  document.getElementById("infoPanelClose")?.addEventListener("click", () => {
+    if (tourGuide?.isActive()) {
+      tourGuide.stop();
+    } else {
+      hideInfoPanel();
+    }
+  });
 
   bindRange(
     "timeSpeedSlider",
