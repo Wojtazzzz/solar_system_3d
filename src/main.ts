@@ -677,7 +677,11 @@ const initSettingsPanel = (
   bindCheckbox("toggleDebugCheckbox", "debug", false, setDebugEnabled);
 
   document.getElementById("quizToggle")?.addEventListener("click", () => {
-    setQuizActive(!quizActive);
+    const next = !quizActive;
+    if (next && tourGuide?.isActive()) {
+      tourGuide.stop();
+    }
+    setQuizActive(next);
   });
 
   document.getElementById("resetDefaultsBtn")?.addEventListener("click", () => {
@@ -799,6 +803,9 @@ const initTourControls = (): void => {
     if (tourGuide.isActive()) {
       tourGuide.stop();
     } else {
+      if (quizActive) {
+        setQuizActive(false);
+      }
       tourGuide.start();
     }
   });
