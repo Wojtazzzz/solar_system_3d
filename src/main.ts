@@ -262,13 +262,20 @@ const handleQuizAnswer = (name: string): void => {
 };
 
 const applyLabelsFromCheckbox = (): void => {
-  const checkbox = document.querySelector<HTMLInputElement>(
+  const planetsCb = document.querySelector<HTMLInputElement>(
     "#toggleLabelsCheckbox",
+  );
+  const cometsCb = document.querySelector<HTMLInputElement>(
+    "#toggleCometLabelsCheckbox",
   );
   const container = document.querySelector<HTMLElement>(".planet-labels");
   container?.classList.toggle(
-    "planet-labels--visible",
-    (checkbox?.checked ?? false) && !quizActive,
+    "planet-labels--show-planets",
+    (planetsCb?.checked ?? false) && !quizActive,
+  );
+  container?.classList.toggle(
+    "planet-labels--show-comets",
+    (cometsCb?.checked ?? false) && !quizActive,
   );
 };
 
@@ -387,7 +394,7 @@ const start = async () => {
   const { createPostProcessing } = await postProcessingPromise;
   const postProcessing = createPostProcessing(renderer, scene, camera.object);
 
-  const { updateLabels } = createPlanetLabels(planets);
+  const { updateLabels } = createBodyLabels([sun, ...planets, ...comets]);
 
   const rebuildStars = (count: number): void => {
     scene.remove(starsMesh);
@@ -560,9 +567,10 @@ const start = async () => {
     ctx.drawImage(src, 0, 0);
 
     const labelsContainer = document.querySelector(".planet-labels");
-    if (labelsContainer?.classList.contains("planet-labels--visible")) {
+    const planetLabelsOn = labelsContainer?.classList.contains("planet-labels--show-planets") ?? false;
+    const cometLabelsOn = labelsContainer?.classList.contains("planet-labels--show-comets") ?? false;
+    if (planetLabelsOn || cometLabelsOn) {
       const pr = renderer.getPixelRatio();
-      ctx.font = `${10 * pr}px "Orbitron", sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -571,12 +579,21 @@ const start = async () => {
 
       const projected = new Vector3();
       const offsetY = 25 * pr;
-      for (const planet of planets) {
-        projected.copy(planet.mesh.position).project(camera.object);
+      const bodies: Labelable[] = [sun, ...planets, ...comets];
+      for (const body of bodies) {
+        if (!body.mesh.visible) continue;
+        const isComet = bodyFacts[body.name]?.type === "comet";
+        if (isComet && !cometLabelsOn) continue;
+        if (!isComet && !planetLabelsOn) continue;
+        ctx.font = isComet
+          ? `${8 * pr}px "Orbitron", sans-serif`
+          : `${10 * pr}px "Orbitron", sans-serif`;
+        projected.copy(body.mesh.position).project(camera.object);
         if (projected.z > 1 || projected.z < -1) continue;
         const x = (projected.x * 0.5 + 0.5) * src.width;
         const y = (-projected.y * 0.5 + 0.5) * src.height;
-        ctx.fillText(planet.name.toUpperCase(), x, y - offsetY);
+        const label = (bodyFacts[body.name]?.displayName ?? body.name).toUpperCase();
+        ctx.fillText(label, x, y - offsetY);
       }
     }
 
@@ -707,36 +724,47 @@ const start = async () => {
   requestAnimationFrame(animate);
 };
 
-const createPlanetLabels = (planets: Planet[]) => {
+type Labelable = { readonly name: string; readonly mesh: Object3D };
+
+const createBodyLabels = (bodies: Labelable[]) => {
   const container = document.createElement("div");
   container.className = "planet-labels";
   const appRoot = document.getElementById("app") ?? document.body;
   appRoot.appendChild(container);
 
-  const entries = planets.map((planet) => {
+  const entries = bodies.map((body) => {
     const el = document.createElement("div");
     el.className = "planet-label";
-    el.textContent = bodyFacts[planet.name]?.displayName ?? planet.name;
+    if (bodyFacts[body.name]?.type === "comet") {
+      el.classList.add("planet-label--comet");
+    }
+    el.textContent = bodyFacts[body.name]?.displayName ?? body.name;
     container.appendChild(el);
-    return { planet, el };
+    return { body, el };
   });
 
   onLocaleChange(() => {
-    for (const { planet, el } of entries) {
-      el.textContent = bodyFacts[planet.name]?.displayName ?? planet.name;
+    for (const { body, el } of entries) {
+      el.textContent = bodyFacts[body.name]?.displayName ?? body.name;
     }
   });
 
   const projected = new Vector3();
 
   const updateLabels = (): void => {
-    if (!container.classList.contains("planet-labels--visible")) return;
+    const planetsOn = container.classList.contains("planet-labels--show-planets");
+    const cometsOn = container.classList.contains("planet-labels--show-comets");
+    if (!planetsOn && !cometsOn) return;
     const canvas = renderer.domElement;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
 
-    entries.forEach(({ planet, el }) => {
-      projected.copy(planet.mesh.position).project(camera.object);
+    entries.forEach(({ body, el }) => {
+      if (!body.mesh.visible) {
+        el.style.display = "none";
+        return;
+      }
+      projected.copy(body.mesh.position).project(camera.object);
       if (projected.z > 1 || projected.z < -1) {
         el.style.display = "none";
         return;
@@ -843,7 +871,14 @@ const initSettingsPanel = (
 
   bindCheckbox("toggleLabelsCheckbox", "la", true, (v) => {
     labelsContainer?.classList.toggle(
-      "planet-labels--visible",
+      "planet-labels--show-planets",
+      v && !quizActive,
+    );
+  });
+
+  bindCheckbox("toggleCometLabelsCheckbox", "cla", false, (v) => {
+    labelsContainer?.classList.toggle(
+      "planet-labels--show-comets",
       v && !quizActive,
     );
   });
@@ -899,6 +934,7 @@ const initSettingsPanel = (
       ["toggleOrbitsCheckbox", true],
       ["toggleCometsCheckbox", true],
       ["toggleLabelsCheckbox", true],
+      ["toggleCometLabelsCheckbox", false],
       ["toggleTrailsCheckbox", true],
       ["toggleInclinationsCheckbox", false],
       ["toggleDanceModeCheckbox", false],

@@ -268,11 +268,15 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 2;
-  display: none;
+  display: block;
 }
 
-.planet-labels--visible {
-  display: block;
+.planet-labels:not(.planet-labels--show-planets) .planet-label:not(.planet-label--comet) {
+  display: none !important;
+}
+
+.planet-labels:not(.planet-labels--show-comets) .planet-label--comet {
+  display: none !important;
 }
 
 .planet-label {
@@ -287,6 +291,12 @@ body {
   white-space: nowrap;
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
   will-change: transform;
+}
+
+.planet-label--comet {
+  font-size: 8px;
+  letter-spacing: 1px;
+  opacity: 0.75;
 }
 
 .zoom-label {

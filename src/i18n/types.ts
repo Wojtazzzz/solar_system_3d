@@ -11,7 +11,8 @@ export type UIStrings = {
   planetsShadow: string;
   showOrbits: string;
   showComets: string;
-  showLabels: string;
+  showPlanetLabels: string;
+  showCometLabels: string;
   showTrails: string;
   realInclinations: string;
   danceMode: string;
