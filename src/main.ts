@@ -15,8 +15,8 @@ import { EarthClouds } from "./objects/earthClouds";
 import { createEarthAtmosphere } from "./objects/earthAtmosphere";
 import { createAsteroidBelt } from "./objects/asteroidBelt";
 import { createStarfield } from "./objects/starfield";
-import { createPostProcessing, type PostProcessing } from "./postProcessing";
-import { DebugPanel } from "./debugPanel";
+import type { PostProcessing } from "./postProcessing";
+import type { DebugPanel } from "./debugPanel";
 import { TourGuide } from "./tourGuide";
 import { settings } from "./settings";
 import {
@@ -261,6 +261,8 @@ slider.max = String(cameraOptions.maxRadius);
 slider.value = String(cameraOptions.initialRadius);
 
 const start = async () => {
+  const postProcessingPromise = import("./postProcessing");
+
   const textures = await loadPlanetTextures();
 
   const sun = new Sun();
@@ -306,6 +308,7 @@ const start = async () => {
   if (earth && earthClouds) earth.mesh.add(earthClouds.mesh);
   if (earth && earthAtmosphere) earth.mesh.add(earthAtmosphere);
 
+  const { createPostProcessing } = await postProcessingPromise;
   const postProcessing = createPostProcessing(renderer, scene, camera.object);
 
   const { updateLabels } = createPlanetLabels(planets);
@@ -328,9 +331,24 @@ const start = async () => {
   };
 
   let debugPanel: DebugPanel | null = null;
+  let DebugPanelCtor: typeof DebugPanel | null = null;
   const setDebugEnabled = (enabled: boolean): void => {
     if (enabled && !debugPanel) {
-      debugPanel = new DebugPanel(renderer);
+      void (async () => {
+        if (!DebugPanelCtor) {
+          const mod = await import("./debugPanel");
+          DebugPanelCtor = mod.DebugPanel;
+        }
+        const stillEnabled =
+          (
+            document.getElementById(
+              "toggleDebugCheckbox",
+            ) as HTMLInputElement | null
+          )?.checked ?? false;
+        if (stillEnabled && !debugPanel) {
+          debugPanel = new DebugPanelCtor(renderer);
+        }
+      })();
     } else if (!enabled && debugPanel) {
       debugPanel.destroy();
       debugPanel = null;
