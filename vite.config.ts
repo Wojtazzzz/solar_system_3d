@@ -87,10 +87,6 @@ const localizeHtml = (html: string, locale: BuildLocale): string => {
   );
 
   out = out.replace(
-    /"name": "Solar System 3D"/,
-    `"name": ${JSON.stringify(ui.title)}`,
-  );
-  out = out.replace(
     /"url": "https:\/\/solarsystem\.byst\.re\/"/,
     `"url": "${url}"`,
   );
