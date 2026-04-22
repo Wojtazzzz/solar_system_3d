@@ -5,6 +5,9 @@ export const pl: Dictionary = {
     title: "Układ Słoneczny 3D",
     description:
       "Interaktywne orrery 3D. Przeciągaj planety, przejdź wycieczkę z przewodnikiem, spróbuj quizu lub poznaj prawdziwe fakty o planetach. Zbudowane na Three.js.",
+    metaTitle: "Układ Słoneczny 3D — interaktywna eksploracja planet",
+    metaDescription:
+      "Interaktywne orrery Układu Słonecznego 3D. Przeciągaj planety, rzucaj nimi, weź udział w wycieczce z przewodnikiem, zagraj w quiz i poznaj fakty o planetach. Zbudowane na Three.js. Instalowalne jako PWA.",
     loading: "Ładowanie układu słonecznego",
 
     settings: "Ustawienia",

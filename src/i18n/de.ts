@@ -5,6 +5,9 @@ export const de: Dictionary = {
     title: "Sonnensystem 3D",
     description:
       "Interaktives 3D-Orrery. Ziehe Planeten, mache eine geführte Tour, probiere das Quiz oder erkunde echte Planetenfakten. Gebaut mit Three.js.",
+    metaTitle: "Sonnensystem 3D — interaktive Planetenerkundung",
+    metaDescription:
+      "Interaktives 3D-Sonnensystem-Orrery. Ziehe Planeten und wirf sie, mache eine geführte Tour, spiele ein Quiz und erkunde planetarische Fakten. Mit Three.js gebaut. Als PWA installierbar.",
     loading: "Sonnensystem wird geladen",
 
     settings: "Einstellungen",

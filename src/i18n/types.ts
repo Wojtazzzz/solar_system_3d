@@ -5,6 +5,8 @@ export const LOCALES: readonly Locale[] = ["en", "pl", "de"] as const;
 export type UIStrings = {
   title: string;
   description: string;
+  metaTitle: string;
+  metaDescription: string;
   loading: string;
 
   settings: string;

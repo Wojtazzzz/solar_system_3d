@@ -38,7 +38,6 @@ import {
   t,
 } from "./i18n";
 import type { Locale } from "./i18n/types";
-import { LOCALES } from "./i18n/types";
 import {
   stars as starsOptions,
   sun as sunOptions,
@@ -322,8 +321,11 @@ const QUALITY_PRESETS: Record<Quality, { pixelRatio: number }> = {
 };
 
 const initialLocale = ((): Locale => {
-  const raw = new URLSearchParams(window.location.search).get("lang");
-  return raw && isLocale(raw) ? raw : "en";
+  const pathSegment = window.location.pathname.split("/").filter(Boolean)[0];
+  if (pathSegment && isLocale(pathSegment)) return pathSegment;
+  const htmlLang = document.documentElement.lang;
+  if (isLocale(htmlLang)) return htmlLang;
+  return "en";
 })();
 setLocale(initialLocale);
 applyI18nToDOM();
@@ -1056,13 +1058,22 @@ const initSettingsPanel = (
     },
   );
 
-  bindSelect<Locale>(
+  const langSelect = document.getElementById(
     "languageSelect",
-    "lang",
-    LOCALES,
-    "en",
-    (v) => setLocale(v),
-  );
+  ) as HTMLSelectElement | null;
+  if (langSelect) {
+    langSelect.value = initialLocale;
+    langSelect.addEventListener("change", () => {
+      const v = langSelect.value;
+      if (!isLocale(v)) return;
+      try {
+        localStorage.setItem("solarSystemLocale", v);
+      } catch {
+        // ignore — storage may be disabled
+      }
+      window.location.href = `/${v}/`;
+    });
+  }
 };
 
 const isSidebarOpen = (): boolean =>
